@@ -1,0 +1,33 @@
+﻿This template requires configuration before it works!!!!
+
+Look through the provided code and se whats included.
+
+1. Add secret key in user secret: "secretkey" : "YourSuperSecretKey1234567890987654321!!!!!!!!!!!!!!!!!!!!"
+2. Create Controller, You cant scaffold ApplicationUser. Create a new Entity and scaffold using that entity. Remove Controller and created DbSet in Context.
+3. Configure IdentityDbContext to use IdentityDbContext with ApplicationUser and role
+4. Add IdentityCore to servicecollection in Program.cs
+5. Add-Migration
+6. Update-Database
+7. SeedUser 
+
+ Snippet for seeding user just for testing setup (use in program direct or in another class) 
+ using (var scope = app.Services.CreateScope())
+  {
+      var services = scope.ServiceProvider;
+      var context = services.GetRequiredService<YourContextClassName>();
+      var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+      context.Database.Migrate();
+
+      var user = new ApplicationUser
+      {
+          UserName = "admin",
+          Email = "admin.admin@admin.com"
+      };
+
+      await userManager.CreateAsync(user, "password");
+  }
+
+  8. Try to get token with seeded user!
+
+
+

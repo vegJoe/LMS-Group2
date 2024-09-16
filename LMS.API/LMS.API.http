@@ -1,0 +1,7 @@
+@LMS.API_HostAddress = http://localhost:5058
+
+//Removed endpoint
+# GET {{LMS.API_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+###
