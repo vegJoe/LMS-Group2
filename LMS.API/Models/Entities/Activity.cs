@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace LMS.API.Models.Entities
+﻿namespace LMS.API.Models.Entities
 {
     public class Activity
     {
@@ -13,6 +11,6 @@ namespace LMS.API.Models.Entities
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ModuleId { get; set; }
-        public Modules Module { get; set; }
+        public Module Modules { get; set; }
     }
 }
