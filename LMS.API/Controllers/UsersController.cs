@@ -24,19 +24,28 @@ namespace LMS.API.Controllers
                 FirstName = x.FirstName,
                 LastName = x.LastName,
                 Email = x.Email ?? "",
+                UserId = x.Id,
                 UserName = x.UserName ?? "",
                 CourseId = x.CourseId ?? 0,
                 Course = x.Course,
-                RefreshToken = x.RefreshToken,
-                RefreshTokenExpireTime = x.RefreshTokenExpireTime
             }).ToList();
         }
 
-        // GET api/<UsersController>/5
-        //[HttpGet("{id}")]
-        //public UserDto Get(int id)
-        //{
-        //    return "value";
-        //}
+        //GET api/<UsersController>/5
+        [HttpGet("{id}")]
+        public UserDto Get(string id)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
+            return new UserDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email ?? "",
+                UserId = user.Id,
+                UserName = user.UserName ?? "",
+                CourseId = user.CourseId ?? 0,
+                Course = user.Course,
+            };
+        }
     }
 }
