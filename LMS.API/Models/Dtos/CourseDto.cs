@@ -1,9 +1,11 @@
-﻿namespace LMS.API.Models.Dtos
+﻿using LMS.API.Models.Entities;
+
+namespace LMS.API.Models.Dtos
 {
     public class CourseDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public IEnumerable<UserDto> Users { get; set; }
