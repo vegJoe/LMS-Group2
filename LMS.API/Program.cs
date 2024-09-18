@@ -50,7 +50,7 @@ public class Program
                     Email = "admin.admin@admin.com"
                 };
 
-                await userManager.CreateAsync(user, "Password1!");
+                await userManager.CreateAsync(user, "password");
             }
         }
 
