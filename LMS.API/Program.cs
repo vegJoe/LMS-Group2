@@ -23,7 +23,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         //ToDo: AddIdentityCore
-        builder.Services.AddIdentityCore<ApplicationUser>().AddRoles<IdentityRole>()
+        builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<LMSApiContext>(options =>
@@ -40,22 +40,6 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                var context = services.GetRequiredService<LMSApiContext>();
-                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-                context.Database.Migrate();
-
-                var user = new ApplicationUser
-                {
-                    UserName = "admin",
-                    Email = "admin.admin@admin.com"
-                };
-
-                await userManager.CreateAsync(user, "password");
-            }
         }
 
         app.UseHttpsRedirection();
