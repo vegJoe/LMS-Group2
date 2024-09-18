@@ -28,6 +28,3 @@ Look through the provided code and se whats included.
   }
 
   8. Try to get token with seeded user!
-
-
-

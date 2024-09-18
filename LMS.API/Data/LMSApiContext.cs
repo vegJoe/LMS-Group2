@@ -1,19 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using LMS.API.Models.Entities;
+﻿using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.API.Data
 {
-    public class LMSApiContext : DbContext
+    public class LMSApiContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
-        public LMSApiContext(DbContextOptions<LMSApiContext> options)
-    : base(options)
+        public LMSApiContext(DbContextOptions<LMSApiContext> options) : base(options)
         {
         }
-
-        public DbSet<Activity> Activity => Set<Activity>();
-        public DbSet<ActivityType> ActivityType => Set<ActivityType>();
-        public DbSet<Course> Courses => Set<Course>();
-        public DbSet<Module> Modules => Set<Module>();
-        public DbSet<User> Users => Set<User>();
     }
 }
