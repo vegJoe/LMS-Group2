@@ -9,7 +9,7 @@ namespace LMS.API.MappingProfile
     {
         public AutoMapperProfile() 
         { 
-            CreateMap<ApplicationUser, UserDto>()
+            CreateMap<User, UserDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id)))
                 .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.CourseId))
                 .ForMember(dest => dest.Course, opt => opt.Ignore()).ReverseMap();
