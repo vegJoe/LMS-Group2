@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.API.Migrations
 {
     [DbContext(typeof(LMSApiContext))]
-    [Migration("20240918072414_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240918073944_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,7 +94,7 @@ namespace LMS.API.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CourseId")
+                    b.Property<int?>("CourseId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -166,7 +166,7 @@ namespace LMS.API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.API.Models.Entities.Course", b =>
+            modelBuilder.Entity("LMS.API.Models.Entities.Courses", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -187,7 +187,7 @@ namespace LMS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Course");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
@@ -370,18 +370,16 @@ namespace LMS.API.Migrations
 
             modelBuilder.Entity("LMS.API.Models.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("LMS.API.Models.Entities.Course", "Course")
+                    b.HasOne("LMS.API.Models.Entities.Courses", "Course")
                         .WithMany("Users")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CourseId");
 
                     b.Navigation("Course");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
                 {
-                    b.HasOne("LMS.API.Models.Entities.Course", "Course")
+                    b.HasOne("LMS.API.Models.Entities.Courses", "Course")
                         .WithMany("Modules")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -446,7 +444,7 @@ namespace LMS.API.Migrations
                     b.Navigation("Activities");
                 });
 
-            modelBuilder.Entity("LMS.API.Models.Entities.Course", b =>
+            modelBuilder.Entity("LMS.API.Models.Entities.Courses", b =>
                 {
                     b.Navigation("Modules");
 
