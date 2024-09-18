@@ -2,7 +2,7 @@
 
 namespace LMS.API.Models.Dtos
 {
-    public class UsersDto
+    public class UserDto
     {
         public Guid Id { get; set; }
         public string? RefreshToken { get; set; }
