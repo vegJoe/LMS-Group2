@@ -1,6 +1,13 @@
-﻿using LMS.API.Models.Dtos;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using LMS.API.Data;
+using LMS.API.Models.Entities;
+using LMS.API.Models.Dtos;
 
 namespace LMS.API.Controllers
 {
@@ -8,97 +15,95 @@ namespace LMS.API.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
-        // ToDo database?
-    }
+        private readonly LMSApiContext _context;
 
-    // GET: api/Courses
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
-    {
-        //ToDo Jimmy api/Courses
-        //var actorsDto = await _context.Actor.ProjectTo<ActorDto>(_mapper.ConfigurationProvider).ToListAsync();
+        public CoursesController(LMSApiContext context)
+        {
+            _context = context;
+        }
 
-        //if (actorsDto == null) return NotFound();
+        // GET: api/Courses
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
+        {
+            return await _context.Course.ToListAsync();
+        }
 
-        //return Ok(actorsDto);
-
-    }
-
-    // GET: api/Courses/{id}
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CourseDto>> GetCourse(int id)
-    {
-        //ToDo Jimmy api/Courses/{id}
-        //var movie = await _context.Movie.FindAsync(id);
-
-        //if (movie == null)
+        // GET: api/Courses/5
+        [HttpGet("{id}")]
+        //public async Task<ActionResult<Course>> GetCourse(int id)
         //{
-        //    return NotFound();
-        //}
+        //    var course = await _context.Course.FindAsync(id);
 
-        //// Mappa från Movie till MovieDto
-        //var movieDto = _mapper.Map<MovieDto>(movie);
-
-        //return Ok(movieDto);
-    }
-
-    // PUT: api/Courses/5
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCourse(int id, CourseToUpdateDto dto)
-    {
-        //ToDo Jimmy [HttpPut("{id}")]
-        //if (dto.Rating < 0 || dto.Rating > 10)
-        //{
-        //    return BadRequest("Rating must be between 0 and 10.");
-        //}
-
-        //// Hämta den befintliga filmen från databasen
-        //var existingMovie = await _context.Movie
-        //    .Include(m => m.Director)
-        //    .Include(m => m.Actors)
-        //    .Include(m => m.Genres)
-        //    .FirstOrDefaultAsync(m => m.Id == id);
-
-        //if (existingMovie == null) return NotFound();
-
-
-        //// Use AutoMapper to update the entity
-        //_mapper.Map(dto, existingMovie);
-
-        //try
-        //{
-        //    await _context.SaveChangesAsync();
-        //}
-        //catch (DbUpdateConcurrencyException)
-        //{
-        //    if (!MovieExists(id))
+        //    if (course == null)
         //    {
         //        return NotFound();
         //    }
-        //    else
-        //    {
-        //        throw;
-        //    }
+
+        //    return course;
         //}
 
-        //return NoContent();
-    }
-
-    // DELETE: api/Courses/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCourse(int id)
-    {
-        //var movie = await _context.Movie.FindAsync(id);
-        //if (movie == null)
+        // PUT: api/Courses/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        //public async Task<IActionResult> PutCourse(int id, Course course)
         //{
-        //    return NotFound();
+        //    if (id != course.Id)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(course).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!CourseExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
         //}
 
-        //_context.Movie.Remove(movie);
-        //await _context.SaveChangesAsync();
+        // POST: api/Courses
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        //public async Task<ActionResult<Course>> PostCourse(Course course)
+        //{
+        //    _context.Course.Add(course);
+        //    await _context.SaveChangesAsync();
 
-        //return NoContent();
+        //    return CreatedAtAction("GetCourse", new { id = course.Id }, course);
+        //}
+
+        // DELETE: api/Courses/5
+        [HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteCourse(int id)
+        //{
+        //    var course = await _context.Course.FindAsync(id);
+        //    if (course == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _context.Course.Remove(course);
+        //    await _context.SaveChangesAsync();
+
+        //    return NoContent();
+        //}
+
+        private bool CourseExists(int id)
+        {
+            return _context.Course.Any(e => e.Id == id);
+        }
     }
-
-    
 }

@@ -4,6 +4,7 @@ namespace LMS.API.Models.Dtos
 {
     public class UsersDto
     {
+        public Guid Id { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpireTime { get; set; }
         public string FirstName { get; set; } = string.Empty;
