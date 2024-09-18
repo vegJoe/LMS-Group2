@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LMS.API.Data;
+using LMS.API.Models.Dtos;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +10,33 @@ namespace LMS.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly LMSApiContext _context;
+        public UsersController(LMSApiContext context)
+        {
+            _context = context;
+        }
         // GET: api/<UsersController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<UserDto> Get()
         {
-            return new string[] { "value1", "value2" };
+            return _context.Users.Select(x => new UserDto
+            {
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email ?? "",
+                UserName = x.UserName ?? "",
+                CourseId = x.CourseId ?? 0,
+                Course = x.Course,
+                RefreshToken = x.RefreshToken,
+                RefreshTokenExpireTime = x.RefreshTokenExpireTime
+            }).ToList();
         }
 
         // GET api/<UsersController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<UsersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<UsersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<UsersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //[HttpGet("{id}")]
+        //public UserDto Get(int id)
+        //{
+        //    return "value";
+        //}
     }
 }

@@ -8,7 +8,7 @@ namespace LMS.API.Models.Dtos
         public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
-        public IEnumerable<UsersDto> Users { get; set; }
+        public IEnumerable<UserDto> Users { get; set; }
         public IEnumerable<ModulesDto> Modules { get; set; }
     }
 }
