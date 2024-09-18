@@ -39,7 +39,7 @@ namespace LMS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Course",
+                name: "Courses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -50,7 +50,7 @@ namespace LMS.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Course", x => x.Id);
+                    table.PrimaryKey("PK_Courses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,7 +83,7 @@ namespace LMS.API.Migrations
                     RefreshTokenExpireTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -103,11 +103,10 @@ namespace LMS.API.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Course_CourseId",
+                        name: "FK_AspNetUsers_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Course",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "Courses",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -124,9 +123,9 @@ namespace LMS.API.Migrations
                 {
                     table.PrimaryKey("PK_Module", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Module_Course_CourseId",
+                        name: "FK_Module_Courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Course",
+                        principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -341,7 +340,7 @@ namespace LMS.API.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Course");
+                name: "Courses");
         }
     }
 }
