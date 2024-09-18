@@ -2,7 +2,7 @@
 
 namespace LMS.API.Models.Entities;
 
-public class ApplicationUser : IdentityUser
+public class User : IdentityUser
 {
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpireTime { get; set; }

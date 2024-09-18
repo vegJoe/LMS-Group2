@@ -22,7 +22,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         //ToDo: AddIdentityCore
-        builder.Services.AddIdentityCore<ApplicationUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
+        builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<LMSApiContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("LMSApiContext") ??
@@ -41,10 +41,10 @@ public class Program
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<LMSApiContext>();
-                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                var userManager = services.GetRequiredService<UserManager<User>>();
                 context.Database.Migrate();
 
-                var user = new ApplicationUser
+                var user = new User
                 {
                     UserName = "admin",
                     Email = "admin.admin@admin.com"

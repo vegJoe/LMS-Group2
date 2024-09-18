@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.API.Data
 {
-    public class LMSApiContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
+    public class LMSApiContext : IdentityDbContext<User, IdentityRole, string>
     {
         public LMSApiContext(DbContextOptions<LMSApiContext> options) : base(options)
         {
