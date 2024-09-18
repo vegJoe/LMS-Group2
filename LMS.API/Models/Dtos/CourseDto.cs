@@ -1,8 +1,16 @@
 ﻿using LMS.API.Models.Entities;
+using System;
+using System.Collections.Generic;
 
 namespace LMS.API.Models.Dtos
 {
-    
-    public record CourseDto(string Name,  string Description, DateTime StartDate, IEnumerable<UserDto> Users, IEnumerable<Module> Module);
-    
+    public class CourseDto
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public IEnumerable<UserDto> Users { get; set; }
+        public IEnumerable<Module> Module { get; set; }   
+        
+    }
 }

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LMS.API.Data;
-using LMS.API.Models.Entities;
 using LMS.API.Models.Dtos;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace LMS.API.Controllers
 {
@@ -16,10 +13,12 @@ namespace LMS.API.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly LMSApiContext _context;
+        private readonly IMapper _mapper;
 
-        public CoursesController(LMSApiContext context)
+        public CoursesController(LMSApiContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Courses
@@ -27,23 +26,8 @@ namespace LMS.API.Controllers
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourse()
         {
             var coursesDto = await _context.Course
-             .Select(c => new CourseDto(
-                 c.Name,
-                 c.Description,
-                 c.StartDate,
-                 c.Users.Select(u => new UserDto
-                 {
-                     RefreshToken = u.RefreshToken,
-                     RefreshTokenExpireTime = u.RefreshTokenExpireTime,
-                     FirstName = u.FirstName,
-                     LastName = u.LastName,
-                     Course = null // Undviker cirkulär referens
-                 }),
-                 c.Modules
-             ))
-             .ToListAsync();
-
-
+                .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
 
             return Ok(coursesDto);
         }
