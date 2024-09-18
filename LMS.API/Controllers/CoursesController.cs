@@ -26,7 +26,26 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourse()
         {
-            return await _context.Course.ToListAsync();
+            var courses = await _context.Course
+         .Select(c => new CourseDto(
+             c.Name,
+             c.Description,
+             c.StartDate,
+             c.Users.Select(u => new UserDto
+             {
+                 RefreshToken = u.RefreshToken,
+                 RefreshTokenExpireTime = u.RefreshTokenExpireTime,
+                 FirstName = u.FirstName,
+                 LastName = u.LastName,
+                 Course = null // Undviker cirkulär referens
+             }),
+             c.Modules
+         ))
+         .ToListAsync();
+
+
+
+            return Ok(courses);
         }
 
         // GET: api/Courses/5
