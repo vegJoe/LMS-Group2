@@ -8,7 +8,7 @@ namespace LMS.API.Models.Dtos
         public string Name { get; set; }
         public string Description { get; set; }
         public int CourseId { get; set; }
-        public Course Course { get; set; }
+        //public CourseDto Course { get; set; }
         public IEnumerable<ActivityDto> Activity { get; set; }
     }
 }
