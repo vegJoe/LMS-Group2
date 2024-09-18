@@ -9,7 +9,7 @@ namespace LMS.API.Models.Dtos
         public DateTime RefreshTokenExpireTime { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public int CourseId { get; set; }
+        public int? CourseId { get; set; }
         public Course Course { get; set; }
     }
 }

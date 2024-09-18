@@ -23,7 +23,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         //ToDo: AddIdentityCore
-        builder.Services.AddIdentityCore<ApplicationUser>().AddRoles<IdentityRole>()
+        builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<LMSApiContext>(options =>

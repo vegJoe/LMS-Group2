@@ -13,6 +13,5 @@ namespace LMS.API.Models.Dtos
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int ModuleId { get; set; }
-        public Module Module { get; set; }
     }
 }
