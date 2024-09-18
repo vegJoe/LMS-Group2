@@ -163,7 +163,7 @@ namespace LMS.API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("LMS.API.Models.Entities.Course", b =>
+            modelBuilder.Entity("LMS.API.Models.Entities.Courses", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,7 +184,7 @@ namespace LMS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Course");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
@@ -367,7 +367,7 @@ namespace LMS.API.Migrations
 
             modelBuilder.Entity("LMS.API.Models.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("LMS.API.Models.Entities.Course", "Course")
+                    b.HasOne("LMS.API.Models.Entities.Courses", "Course")
                         .WithMany("Users")
                         .HasForeignKey("CourseId");
 
@@ -376,7 +376,7 @@ namespace LMS.API.Migrations
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
                 {
-                    b.HasOne("LMS.API.Models.Entities.Course", "Course")
+                    b.HasOne("LMS.API.Models.Entities.Courses", "Course")
                         .WithMany("Modules")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -441,7 +441,7 @@ namespace LMS.API.Migrations
                     b.Navigation("Activities");
                 });
 
-            modelBuilder.Entity("LMS.API.Models.Entities.Course", b =>
+            modelBuilder.Entity("LMS.API.Models.Entities.Courses", b =>
                 {
                     b.Navigation("Modules");
 

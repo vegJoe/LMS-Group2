@@ -1,6 +1,7 @@
 
 using Companies.API.Extensions;
 using LMS.API.Data;
+using LMS.API.MappingProfile;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +23,14 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         //ToDo: AddIdentityCore
-        builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
+        builder.Services.AddIdentityCore<ApplicationUser>().AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
 
         builder.Services.AddDbContext<LMSApiContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("LMSApiContext") ??
         throw new InvalidOperationException("Connection string 'LMSApiContext' not found.")));
+
+        builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
         var app = builder.Build();
 
@@ -41,10 +45,10 @@ public class Program
             {
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<LMSApiContext>();
-                var userManager = services.GetRequiredService<UserManager<User>>();
+                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                 context.Database.Migrate();
 
-                var user = new User
+                var user = new ApplicationUser
                 {
                     UserName = "admin",
                     Email = "admin.admin@admin.com"

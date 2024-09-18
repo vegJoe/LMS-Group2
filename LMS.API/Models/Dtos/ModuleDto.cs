@@ -2,7 +2,7 @@
 
 namespace LMS.API.Models.Dtos
 {
-    public class ModulesDto
+    public class ModuleDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
