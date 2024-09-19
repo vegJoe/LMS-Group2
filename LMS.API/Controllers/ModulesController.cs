@@ -9,6 +9,7 @@ using LMS.API.Data;
 using LMS.API.Models.Entities;
 using LMS.API.Models.Dtos;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 namespace LMS.API.Controllers
 {
@@ -29,67 +30,70 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule()
         {
-            var modules = await _context.Module.Include(m => m.Course).Include(m => m.Activites).ToListAsync();
+            var modules = await _context.Module
+                .Include(m => m.Course)
+                .Include(m => m.Activites)
+                .ToListAsync();
                 
-
             var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
             return Ok(modulesDto);
         }
 
         // GET: api/Modules/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Module>> GetModule(int id)
+        public async Task<ActionResult<ModuleDto>> GetModule(int id)
         {
-            var @module = await _context.Module.FindAsync(id);
+            var @module = await _context.Module
+                .Where(m => m.Id == id)
+                .ProjectTo<ModuleDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
 
             if (@module == null)
             {
                 return NotFound();
             }
 
-            return @module;
+            return Ok(@module);
         }
 
         // PUT: api/Modules/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutModule(int id, Module @module)
+        public async Task<IActionResult> PutModule(int id, CreateUpdateModuleDto @module)
         {
-            if (id != @module.Id)
+            if(!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(@module).State = EntityState.Modified;
-
-            try
+            var existingModule = await _context.Module.FindAsync(id);
+            if (existingModule == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ModuleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
 
-            return NoContent();
+            _mapper.Map(module, existingModule);
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Updated module id:{id}");
         }
 
         // POST: api/Modules
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Module>> PostModule(Module @module)
+        public async Task<ActionResult<ModuleDto>> PostModule(CreateUpdateModuleDto @module)
         {
-            _context.Module.Add(@module);
-            await _context.SaveChangesAsync();
+            var newModule = _mapper.Map<Module>(@module);
 
-            return CreatedAtAction("GetModule", new { id = @module.Id }, @module);
+            if(newModule != null)
+            {
+                _context.Module.Add(newModule);
+                await _context.SaveChangesAsync();
+                //return CreatedAtAction(nameof(GetModule), new { id = newModule.Id }, @module);
+                return Ok("New module was created");
+            }
+            return BadRequest("Could not create new module");
         }
 
         // DELETE: api/Modules/5
@@ -105,7 +109,7 @@ namespace LMS.API.Controllers
             _context.Module.Remove(@module);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok($"Entry with id:{id} was deleted");
         }
 
         private bool ModuleExists(int id)
