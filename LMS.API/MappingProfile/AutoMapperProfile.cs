@@ -26,6 +26,8 @@ namespace LMS.API.MappingProfile
             CreateMap<ActivityType, ActivityTypeDto>().ReverseMap();
 
             CreateMap<Module, CreateUpdateModuleDto>().ReverseMap();
+
+            CreateMap<Activity, CreateUpdateActivityDto>().ReverseMap();
         }
     }
 }
