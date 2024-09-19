@@ -36,42 +36,34 @@ namespace LMS.API.Controllers
 
         //GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public UserDto Get(string id)
+        public async Task<ActionResult<UserDto>> Get(string id)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == id);
-            return new UserDto
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email ?? "",
-                UserName = user.UserName ?? "",
-                CourseId = user.CourseId ?? 0,
-                Course = user.Course,
-            };
+                return NotFound("No user found");
+            }
+
+            var userDto = _mapper.Map<UserDto>(user);
+            return Ok(userDto);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<UserDto> Delete(string id)
+        public async Task<ActionResult<UserDto>> Delete(string id)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == id);
-            var userDto = new UserDto
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email ?? "",
-                UserName = user.UserName ?? "",
-                CourseId = user.CourseId ?? 0,
-                Course = user.Course,
-            };
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (user != null)
+            if (user == null)
             {
-                _context.Users.Remove(user);
-                _context.SaveChanges();
-                return Ok(userDto);
+                return NotFound("No user found");
             }
 
-            return BadRequest();
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            var userDto = _mapper.Map<UserDto>(user);
+            return Ok(userDto);
+
         }
     }
 }
