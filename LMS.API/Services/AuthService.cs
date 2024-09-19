@@ -96,6 +96,9 @@ public class AuthService : IAuthService
         {
             UserName = userForRegistration.UserName,
             Email = userForRegistration.Email,
+            FirstName = userForRegistration.FirstName,
+            LastName = userForRegistration.LastName,
+            CourseId = userForRegistration.CourseId,
         };
 
         IdentityResult result = await userManager.CreateAsync(user, userForRegistration.Password!);
