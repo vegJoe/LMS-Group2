@@ -5,6 +5,7 @@ using LMS.API.Data;
 using LMS.API.Models.Dtos;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using LMS.API.Models.Entities;
 
 namespace LMS.API.Controllers
 {
@@ -90,13 +91,16 @@ namespace LMS.API.Controllers
         // POST: api/Courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        //public async Task<ActionResult<Course>> PostCourse(Course course)
-        //{
-        //    _context.Course.Add(course);
-        //    await _context.SaveChangesAsync();
+        public async Task<ActionResult<CourseDto>> CreateCourse(CourseDto dto)
+        {
+            var course = _mapper.Map<Course>(dto);
 
-        //    return CreatedAtAction("GetCourse", new { id = course.Id }, course);
-        //}
+            _context.Course.Add(course);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCourse", new { id = course.Id }, _mapper.Map<CourseDto>(course));
+
+        }
 
         // DELETE: api/Courses/5
         [HttpDelete("{id}")]
