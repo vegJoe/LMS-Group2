@@ -6,6 +6,9 @@ public record UserForRegistrationDto
 {
     [Required(ErrorMessage = "Username is required")]
     public string? UserName { get; init; }
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
+    public int? CourseId { get; init; }
 
     [Required(ErrorMessage = "Password is required")]
     public string? Password { get; init; }
