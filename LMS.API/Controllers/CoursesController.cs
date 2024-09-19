@@ -29,6 +29,8 @@ namespace LMS.API.Controllers
                 .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
+            if(coursesDto == null) return NotFound();
+
             return Ok(coursesDto);
         }
 
@@ -36,11 +38,11 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         //public async Task<ActionResult<Course>> GetCourse(int id)
         //{
-        //    var course = await _context.Course.FindAsync(id);
+        //    var course = await _context.course.findasync(id);
 
         //    if (course == null)
         //    {
-        //        return NotFound();
+        //        return notfound();
         //    }
 
         //    return course;
