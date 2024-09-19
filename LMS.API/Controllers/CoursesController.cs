@@ -23,7 +23,7 @@ namespace LMS.API.Controllers
 
         // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourse()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
         {
             var coursesDto = await _context.Course
                 .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
@@ -36,17 +36,17 @@ namespace LMS.API.Controllers
 
         // GET: api/Courses/5
         [HttpGet("{id}")]
-        //public async Task<ActionResult<Course>> GetCourse(int id)
-        //{
-        //    var course = await _context.course.findasync(id);
+        public async Task<ActionResult<CourseDto>> GetCourse(int id)
+        {
+            var movieDto = await _context.Course
+            .Where(c => c.Id == id)
+            .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
 
-        //    if (course == null)
-        //    {
-        //        return notfound();
-        //    }
-
-        //    return course;
-        //}
+            if (movieDto == null) return NotFound();
+           
+            return Ok(movieDto);
+        }
 
         // PUT: api/Courses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
