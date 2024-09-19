@@ -11,6 +11,7 @@ namespace LMS.API.Data
         public LMSApiContext(DbContextOptions<LMSApiContext> options) : base(options)
         {
         }
-        public DbSet<LMS.API.Models.Dtos.UserDto> UserDto { get; set; } = default!;
+        public DbSet<LMS.API.Models.Entities.Course> Course { get; set; } = default!;
+        public DbSet<LMS.API.Models.Entities.Module> Module { get; set; } = default!;
     }
 }

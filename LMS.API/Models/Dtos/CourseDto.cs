@@ -1,6 +1,6 @@
 ﻿namespace LMS.API.Models.Dtos
 {
-    public class CoursesDto
+    public class CourseDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
