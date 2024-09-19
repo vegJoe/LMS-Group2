@@ -9,7 +9,6 @@ using LMS.API.Data;
 using LMS.API.Models.Entities;
 using LMS.API.Models.Dtos;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 
 namespace LMS.API.Controllers
 {
@@ -28,45 +27,32 @@ namespace LMS.API.Controllers
 
         // GET: api/Modules
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule()
         {
-            var modules = await _context.Module.Include(m => m.Course)
-                .Include(m => m.Activites)
-                .ToListAsync();
-            
-            if(modules == null)
-            {
-                return NotFound();
-            }
+            var modules = await _context.Module.Include(m => m.Course).Include(m => m.Activites).ToListAsync();
+                
 
             var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
             return Ok(modulesDto);
         }
 
         // GET: api/Modules/5
-        [HttpGet("{id:int}")]
-        [Authorize]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Module>> GetModule(int id)
         {
-            var module = await _context.Module.Include(m => m.Course)
-                .Include(m => m.Activites)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var @module = await _context.Module.FindAsync(id);
 
-            if (module == null)
+            if (@module == null)
             {
                 return NotFound();
             }
 
-            var moudleDto = _mapper.Map<ModuleDto>(module);
-
-            return Ok(moudleDto);
+            return @module;
         }
 
         // PUT: api/Modules/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id:int}")]
-        [Authorize]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutModule(int id, Module @module)
         {
             if (id != @module.Id)
@@ -98,18 +84,12 @@ namespace LMS.API.Controllers
         // POST: api/Modules
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Module>> PostModule(ModuleDto module)
+        public async Task<ActionResult<Module>> PostModule(Module @module)
         {
-            var newModule = _mapper.Map<Module>(module);
+            _context.Module.Add(@module);
+            await _context.SaveChangesAsync();
 
-            if(newModule != null)
-            {
-                _context.Module.Add(newModule);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction("Module", new { id  = newModule.Id }, module);
-            }
-
-            return BadRequest("Was unable to create new Module");
+            return CreatedAtAction("GetModule", new { id = @module.Id }, @module);
         }
 
         // DELETE: api/Modules/5
