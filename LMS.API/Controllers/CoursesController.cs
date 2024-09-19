@@ -38,46 +38,54 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
-            var movieDto = await _context.Course
+            var courseDto = await _context.Course
             .Where(c => c.Id == id)
             .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
-            if (movieDto == null) return NotFound();
+            if (courseDto == null) return NotFound();
            
-            return Ok(movieDto);
+            return Ok(courseDto);
         }
 
         // PUT: api/Courses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        //public async Task<IActionResult> PutCourse(int id, Course course)
-        //{
-        //    if (id != course.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        public async Task<ActionResult<CourseDto>> UpdateCourse(int id, CourseDto dto)
+        {
+            if (id != dto.Id) return BadRequest();
 
-        //    _context.Entry(course).State = EntityState.Modified;
+            var course = await _context.Course
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!CourseExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            if (course == null) return NotFound();
 
-        //    return NoContent();
-        //}
+            _mapper.Map(dto, course);
+
+            // Mark the entity as modified so that Entity Framework knows it needs to be updated in the database
+            _context.Entry(course).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                //Does the course exist in the database
+                if (!CourseExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            var updatedCourseDto = _mapper.Map<CourseDto>(course);
+
+            return Ok(updatedCourseDto);
+        }
 
         // POST: api/Courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
