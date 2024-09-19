@@ -91,7 +91,7 @@ namespace LMS.API.Controllers
                 _context.Module.Add(newModule);
                 await _context.SaveChangesAsync();
                 //return CreatedAtAction(nameof(GetModule), new { id = newModule.Id }, @module);
-                return Ok("New module was created");
+                return StatusCode(201, "New module was created"); //statuscode 201 for "Created".
             }
             return BadRequest("Could not create new module");
         }
