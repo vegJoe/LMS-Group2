@@ -104,19 +104,17 @@ namespace LMS.API.Controllers
 
         // DELETE: api/Courses/5
         [HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteCourse(int id)
-        //{
-        //    var course = await _context.Course.FindAsync(id);
-        //    if (course == null)
-        //    {
-        //        return NotFound();
-        //    }
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            var course = await _context.Course.FindAsync(id);
 
-        //    _context.Course.Remove(course);
-        //    await _context.SaveChangesAsync();
+            if (course == null) return NotFound();
 
-        //    return NoContent();
-        //}
+            _context.Course.Remove(course);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
 
         private bool CourseExists(int id)
         {
