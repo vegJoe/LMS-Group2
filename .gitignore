@@ -361,5 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/LMS.API/Migrations/20240919154244_1.cs
-/LMS.API/Migrations/20240919154244_1.cs
+/LMS.API/Migrations
+/LMS.API/Migrations
