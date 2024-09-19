@@ -14,11 +14,13 @@ namespace LMS.API.Controllers
     {
         private readonly LMSApiContext _context;
         private readonly IMapper _mapper;
+
         public UsersController(LMSApiContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
+
         // GET: api/<UsersController>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get()
@@ -60,9 +62,8 @@ namespace LMS.API.Controllers
             }
 
             _context.Users.Remove(user);
-            _context.SaveChanges();
-            var userDto = _mapper.Map<UserDto>(user);
-            return Ok(userDto);
+            await _context.SaveChangesAsync();
+            return NoContent();
 
         }
     }
