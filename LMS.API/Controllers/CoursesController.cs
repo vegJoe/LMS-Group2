@@ -1,11 +1,11 @@
 ﻿
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LMS.API.Data;
-using LMS.API.Models.Dtos;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using LMS.API.Data;
+using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.API.Controllers
 {
@@ -26,11 +26,11 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
         {
-            var coursesDto = await _context.Course
+            var coursesDto = await _context.Courses
                 .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
-            if(coursesDto == null) return NotFound();
+            if (coursesDto == null) return NotFound();
 
             return Ok(coursesDto);
         }
@@ -39,13 +39,13 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
-            var courseDto = await _context.Course
+            var courseDto = await _context.Courses
             .Where(c => c.Id == id)
             .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
             if (courseDto == null) return NotFound();
-           
+
             return Ok(courseDto);
         }
 
@@ -56,7 +56,7 @@ namespace LMS.API.Controllers
         {
             if (id != dto.Id) return BadRequest();
 
-            var course = await _context.Course
+            var course = await _context.Courses
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null) return NotFound();
@@ -95,7 +95,7 @@ namespace LMS.API.Controllers
         {
             var course = _mapper.Map<Course>(dto);
 
-            _context.Course.Add(course);
+            _context.Courses.Add(course);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCourse", new { id = course.Id }, _mapper.Map<CourseDto>(course));
@@ -106,11 +106,11 @@ namespace LMS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = await _context.Course.FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
 
             if (course == null) return NotFound();
 
-            _context.Course.Remove(course);
+            _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -118,7 +118,21 @@ namespace LMS.API.Controllers
 
         private bool CourseExists(int id)
         {
-            return _context.Course.Any(e => e.Id == id);
+            return _context.Courses.Any(e => e.Id == id);
+        }
+
+        [HttpGet("{id}/students")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetStudentsForCourse(int id)
+        {
+            var course = await _context.Courses
+                .Include(c => c.Users)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (course == null) return NotFound($"Course with ID {id} not found.");
+
+            var userDtos = _mapper.Map<IEnumerable<UserDto>>(course.Users);
+
+            return Ok(userDtos);
         }
     }
 }
