@@ -40,6 +40,7 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            await app.SeedDataAsync();
         }
 
         app.UseHttpsRedirection();
