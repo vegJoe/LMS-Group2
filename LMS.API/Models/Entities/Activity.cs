@@ -18,6 +18,6 @@ namespace LMS.API.Models.Entities
         public DateTime EndDate { get; set; }
         [Required]
         public int ModuleId { get; set; }
-        public Module Modules { get; set; }
+        public Module Module { get; set; }
     }
 }
