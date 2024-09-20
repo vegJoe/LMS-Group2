@@ -39,18 +39,18 @@ namespace LMS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Courses",
+                name: "Course",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Courses", x => x.Id);
+                    table.PrimaryKey("PK_Course", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -103,9 +103,9 @@ namespace LMS.API.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Courses_CourseId",
+                        name: "FK_AspNetUsers_Course_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "Course",
                         principalColumn: "Id");
                 });
 
@@ -116,16 +116,16 @@ namespace LMS.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CourseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Module", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Module_Courses_CourseId",
+                        name: "FK_Module_Course_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "Course",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -222,7 +222,7 @@ namespace LMS.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Details = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TypeId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -340,7 +340,7 @@ namespace LMS.API.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Courses");
+                name: "Course");
         }
     }
 }
