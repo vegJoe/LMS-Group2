@@ -10,7 +10,8 @@ namespace LMS.API.Data
         public LMSApiContext(DbContextOptions<LMSApiContext> options) : base(options)
         {
         }
-        public DbSet<LMS.API.Models.Entities.Course> Courses { get; set; } = default!;
-        public DbSet<LMS.API.Models.Entities.Module> Modules { get; set; } = default!;
+        public DbSet<LMS.API.Models.Entities.Course> Course { get; set; } = default!;
+        public DbSet<LMS.API.Models.Entities.Module> Module { get; set; } = default!;
+        public DbSet<LMS.API.Models.Entities.Activity> Activity { get; set; } = default!;
     }
 }
