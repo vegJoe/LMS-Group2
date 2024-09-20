@@ -37,7 +37,7 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ActivityDto>> GetActivitys(int id)
         {
-            var activityDto = await _context.Activity
+            var activityDto = await _context.Activities
                 .Where(a => a.ModuleId == id)
                 .FirstOrDefaultAsync();
 
@@ -59,7 +59,7 @@ namespace LMS.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingActivity = await _context.Module.FindAsync(id);
+            var existingActivity = await _context.Modules.FindAsync(id);
             if (existingActivity == null)
             {
                 return NotFound();
@@ -81,7 +81,7 @@ namespace LMS.API.Controllers
 
             if (newActivity != null)
             {
-                _context.Activity.Add(newActivity);
+                _context.Activities.Add(newActivity);
                 await _context.SaveChangesAsync();
                 return StatusCode(201, "New activity was created"); //statuscode 201 for "Created".
             }
@@ -92,13 +92,13 @@ namespace LMS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteActivityDto(int id)
         {
-            var activity = await _context.Activity.FindAsync(id);
+            var activity = await _context.Activities.FindAsync(id);
             if (activity == null)
             {
                 return NotFound();
             }
 
-            _context.Activity.Remove(activity);
+            _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -106,7 +106,7 @@ namespace LMS.API.Controllers
 
         private bool ActivityDtoExists(int id)
         {
-            return _context.Activity.Any(e => e.Id == id);
+            return _context.Activities.Any(e => e.Id == id);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule()
         {
-            var modules = await _context.Module
+            var modules = await _context.Modules
                 .Include(m => m.Course)
                 .Include(m => m.Activites)
                 .ToListAsync();
@@ -43,7 +43,7 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ModuleDto>> GetModule(int id)
         {
-            var @module = await _context.Module
+            var @module = await _context.Modules
                 .Where(m => m.Id == id)
                 .ProjectTo<ModuleDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
@@ -66,7 +66,7 @@ namespace LMS.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingModule = await _context.Module.FindAsync(id);
+            var existingModule = await _context.Modules.FindAsync(id);
             if (existingModule == null)
             {
                 return NotFound();
@@ -88,7 +88,7 @@ namespace LMS.API.Controllers
 
             if(newModule != null)
             {
-                _context.Module.Add(newModule);
+                _context.Modules.Add(newModule);
                 await _context.SaveChangesAsync();
                 return StatusCode(201, "New module was created"); //statuscode 201 for "Created".
             }
@@ -99,13 +99,13 @@ namespace LMS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteModule(int id)
         {
-            var @module = await _context.Module.FindAsync(id);
+            var @module = await _context.Modules.FindAsync(id);
             if (@module == null)
             {
                 return NotFound();
             }
 
-            _context.Module.Remove(@module);
+            _context.Modules.Remove(@module);
             await _context.SaveChangesAsync();
 
             return Ok($"Entry with id:{id} was deleted");
@@ -113,7 +113,7 @@ namespace LMS.API.Controllers
 
         private bool ModuleExists(int id)
         {
-            return _context.Module.Any(e => e.Id == id);
+            return _context.Modules.Any(e => e.Id == id);
         }
     }
 }

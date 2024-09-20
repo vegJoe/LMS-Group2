@@ -15,7 +15,7 @@ namespace LMS.API.Data
 
                 await db.Database.MigrateAsync();
 
-                if (await db.Activity.AnyAsync()) return; // If data exists, don't seed again
+                if (await db.Activities.AnyAsync()) return; // If data exists, don't seed again
 
                 try
                 {
