@@ -47,13 +47,7 @@ namespace LMS.API.Controllers
                     });
                 }
 
-                return Ok(new ProblemDetails
-                {
-                    Title = "Request successful",
-                    Detail = "Courses fetched successfully.",
-                    Status = 200,
-                    Instance = HttpContext.Request.Path
-                });
+                return Ok(coursesDto);
 
             }
             catch (Exception ex)
@@ -97,7 +91,13 @@ namespace LMS.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error fetching course with ID {id}");
-                return StatusCode(500, new { message = "An error occurred while fetching the course." });
+                return StatusCode(500, new ProblemDetails
+                {
+                    Title = "Internal server error",
+                    Detail = $"An error occurred while fetching the course with ID {id}.",
+                    Status = 500,
+                    Instance = HttpContext.Request.Path
+                });
             }
         }
 
@@ -147,7 +147,14 @@ namespace LMS.API.Controllers
                         Instance = HttpContext.Request.Path
                     });
                 }
-                throw;
+
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Concurrency conflict",
+                    Detail = "A concurrency issue occurred while updating the course. Please try again.",
+                    Status = 409,
+                    Instance = HttpContext.Request.Path
+                });
             }
             catch (Exception ex)
             {
@@ -160,7 +167,6 @@ namespace LMS.API.Controllers
                     Instance = HttpContext.Request.Path
                 });
             }
-
         }
 
         // POST: api/Courses
@@ -194,9 +200,6 @@ namespace LMS.API.Controllers
                     Instance = HttpContext.Request.Path
                 });
             }
-
-
-
         }
 
         // DELETE: api/Courses/5
@@ -226,7 +229,13 @@ namespace LMS.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error deleting course with ID {id}");
-                return StatusCode(500, new { message = "An error occurred while deleting the course." });
+                return StatusCode(500, new ProblemDetails
+                {
+                    Title = "Internal server error",
+                    Detail = $"An error occurred while deleting the course with ID {id}.",
+                    Status = 500,
+                    Instance = HttpContext.Request.Path
+                });
             }
         }
 
@@ -244,7 +253,16 @@ namespace LMS.API.Controllers
                     .Include(c => c.Users)
                     .FirstOrDefaultAsync(c => c.Id == id);
 
-                if (course == null) return NotFound(new { message = $"Course with ID {id} not found." });
+                if (course == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
 
                 var userDtos = _mapper.Map<IEnumerable<UserDto>>(course.Users);
 
@@ -253,7 +271,13 @@ namespace LMS.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error fetching students for course with ID {id}");
-                return StatusCode(500, new { message = "An error occurred while fetching students." });
+                return StatusCode(500, new ProblemDetails
+                {
+                    Title = "Internal server error",
+                    Detail = $"An error occurred while fetching students for the course with ID {id}.",
+                    Status = 500,
+                    Instance = HttpContext.Request.Path
+                });
             }
         }
     }
