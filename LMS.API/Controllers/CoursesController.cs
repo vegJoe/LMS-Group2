@@ -5,9 +5,7 @@ using LMS.API.Data;
 using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace LMS.API.Controllers
 {
