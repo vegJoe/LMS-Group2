@@ -26,19 +26,13 @@ namespace LMS.API.Controllers
             this._mapper = mapper;
         }
 
-        // GET: api/Activity
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<ActivityDto>>> GetActivity()
-        //{
-        //    var activites
-        //}
-
         // GET: api/Activity/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ActivityDto>> GetActivitys(int id)
         {
             var activityDto = await _context.Activities
-                .Where(a => a.ModuleId == id)
+                .Where(a => a.Id == id) 
+                .Include(at => at.Type)
                 .FirstOrDefaultAsync();
 
             if (activityDto == null)
@@ -59,7 +53,7 @@ namespace LMS.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var existingActivity = await _context.Modules.FindAsync(id);
+            var existingActivity = await _context.Activities.FindAsync(id);
             if (existingActivity == null)
             {
                 return NotFound();
@@ -101,7 +95,7 @@ namespace LMS.API.Controllers
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok($"Entry with id:{id} was deleted");
         }
 
         private bool ActivityDtoExists(int id)

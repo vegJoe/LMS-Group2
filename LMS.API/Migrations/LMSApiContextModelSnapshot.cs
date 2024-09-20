@@ -58,7 +58,7 @@ namespace LMS.API.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("Activity");
+                    b.ToTable("Activities");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.ActivityType", b =>
@@ -98,7 +98,7 @@ namespace LMS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Course");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
@@ -123,7 +123,7 @@ namespace LMS.API.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Module");
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.User", b =>
@@ -345,19 +345,19 @@ namespace LMS.API.Migrations
 
             modelBuilder.Entity("LMS.API.Models.Entities.Activity", b =>
                 {
-                    b.HasOne("LMS.API.Models.Entities.Module", "Modules")
+                    b.HasOne("LMS.API.Models.Entities.Module", "Module")
                         .WithMany("Activites")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LMS.API.Models.Entities.ActivityType", "Type")
-                        .WithMany("Activities")
+                        .WithMany()
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Modules");
+                    b.Navigation("Module");
 
                     b.Navigation("Type");
                 });
@@ -431,11 +431,6 @@ namespace LMS.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("LMS.API.Models.Entities.ActivityType", b =>
-                {
-                    b.Navigation("Activities");
                 });
 
             modelBuilder.Entity("LMS.API.Models.Entities.Course", b =>

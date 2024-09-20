@@ -1,5 +1,7 @@
 ﻿using Bogus;
 using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace LMS.API.Data
@@ -12,13 +14,18 @@ namespace LMS.API.Data
             {
                 var servicesProvider = scope.ServiceProvider;
                 var db = servicesProvider.GetRequiredService<LMSApiContext>();
+                var userManager = servicesProvider.GetRequiredService<UserManager<User>>();
+                var roleManager = servicesProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 await db.Database.MigrateAsync();
 
-                if (await db.Activities.AnyAsync()) return; // If data exists, don't seed again
+                if (await db.Courses.AnyAsync()) return; // If data exists, don't seed again
 
                 try
                 {
+                    // Create Roles
+                    await CreateRolesAsync(roleManager);
+
                     // Generate Courses
                     var courses = GenerateCourses(5);
                     await db.AddRangeAsync(courses);
@@ -40,14 +47,25 @@ namespace LMS.API.Data
                     await db.SaveChangesAsync();
 
                     // Generate Users and assign to Courses
-                    var users = GenerateUsers(10, courses);
-                    await db.AddRangeAsync(users);
-                    await db.SaveChangesAsync();
+                    await GenerateUsersAsync(userManager, 10, courses);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message); // Log error for debugging
                     throw;
+                }
+            }
+        }
+
+        private static async Task CreateRolesAsync(RoleManager<IdentityRole> roleManager)
+        {
+            string[] roleNames = { "Admin", "Instructor", "Student" };
+
+            foreach (var roleName in roleNames)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
         }
@@ -93,10 +111,11 @@ namespace LMS.API.Data
             return faker.Generate(count);
         }
 
-        private static List<User> GenerateUsers(int count, List<Course> courses)
+        private static async Task GenerateUsersAsync(UserManager<User> userManager, int count, List<Course> courses)
         {
+            var existingUsers = await userManager.Users.ToListAsync();
+            var userIds = existingUsers.Select(u => u.Id).ToHashSet();
             var faker = new Faker<User>()
-                .RuleFor(u => u.Id, f => Guid.NewGuid().ToString())
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
                 .RuleFor(u => u.LastName, f => f.Name.LastName())
                 .RuleFor(u => u.Email, f => f.Internet.Email())
@@ -104,7 +123,27 @@ namespace LMS.API.Data
                 .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
                 .RuleFor(u => u.CourseId, f => f.PickRandom(courses).Id);
 
-            return faker.Generate(count);
+            for (int i = 0; i < count; i++)
+            {
+                User user;
+                do
+                {
+                    user = faker.Generate();
+                    user.Id = Guid.NewGuid().ToString(); // Ensure a unique ID
+                } while (userIds.Contains(user.Id)); // Check for uniqueness
+
+                var result = await userManager.CreateAsync(user, "Password123!"); // Use a secure password
+                if (result.Succeeded)
+                {
+                    // Assign roles here
+                    var role = i % 3 == 0 ? "Admin" : i % 3 == 1 ? "Instructor" : "Student";
+                    await userManager.AddToRoleAsync(user, role);
+                }
+                else
+                {
+                    Console.WriteLine($"Error creating user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
         }
     }
 }
