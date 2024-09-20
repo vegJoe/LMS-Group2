@@ -21,12 +21,19 @@ namespace LMS.API.MappingProfile
             CreateMap<Module, ModuleDto>()
                 .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.CourseId))
                 //.ForMember(dest => dest.Course, opt => opt.MapFrom(src => src.Course))
-                .ForMember(dest => dest.Activity, opt => opt.MapFrom(src => src.Activites)).ReverseMap();
+                .ForMember(dest => dest.Activity, opt => opt.MapFrom(src => src.Activites))
+                .ReverseMap();
 
             CreateMap<Activity, ActivityDto>()
-                .ForMember(dest => dest.ModuleId, opt => opt.MapFrom(src => src.ModuleId)).ReverseMap();
+                .ForMember(dest => dest.ModuleId, opt => opt.MapFrom(src => src.ModuleId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ReverseMap();
 
             CreateMap<ActivityType, ActivityTypeDto>().ReverseMap();
+
+            CreateMap<Module, CreateUpdateModuleDto>().ReverseMap();
+
+            CreateMap<Activity, CreateUpdateActivityDto>().ReverseMap();
         }
     }
 }

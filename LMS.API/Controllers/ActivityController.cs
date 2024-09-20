@@ -31,7 +31,7 @@ namespace LMS.API.Controllers
         public async Task<ActionResult<ActivityDto>> GetActivitys(int id)
         {
             var activityDto = await _context.Activities
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == id) 
                 .Include(at => at.Type)
                 .FirstOrDefaultAsync();
 
