@@ -7,6 +7,6 @@ namespace LMS.API.Models.Entities
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
-        public ICollection<Activity> Activities { get; set; }
+        //public ICollection<Activity> Activities { get; set; }
     }
 }
