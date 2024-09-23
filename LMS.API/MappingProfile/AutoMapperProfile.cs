@@ -12,7 +12,7 @@ namespace LMS.API.MappingProfile
             CreateMap<User, UserDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id)))
                 .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.CourseId))
-                .ForMember(dest => dest.Course, opt => opt.Ignore()).ReverseMap();
+                .ReverseMap();
 
             CreateMap<Course, CourseDto>()
            .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.Users))
