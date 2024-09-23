@@ -1,6 +1,5 @@
-
-using Companies.API.Extensions;
 using LMS.API.Data;
+using LMS.API.Extensions;
 using LMS.API.MappingProfile;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -52,7 +51,6 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
-        //ToDo: AddAuthentication
         app.UseAuthentication();
         app.UseAuthorization();
 
