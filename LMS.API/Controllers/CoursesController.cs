@@ -31,7 +31,7 @@ namespace LMS.API.Controllers
                 return BadRequest("Invalid pageNumber or pageSize");
             }
 
-            IQueryable<Course> query = _context.Courses;
+            IQueryable<Course> query = _context.Courses.Include(c => c.Modules);
 
             // Apply filtering by course name
             if (!string.IsNullOrWhiteSpace(filter))
