@@ -11,6 +11,6 @@ namespace LMS.API.Models.Entities
         [Required]
         public DateTime StartDate { get; set; }
         public ICollection<User>? Users { get; set; }
-        public ICollection<Module>? Modules { get; set; }
+        public ICollection<Module> Modules { get; set; } = [];
     }
 }
