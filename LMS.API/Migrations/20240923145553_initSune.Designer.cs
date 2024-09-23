@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.API.Migrations
 {
     [DbContext(typeof(LMSApiContext))]
-    [Migration("20240923141356_init")]
-    partial class init
+    [Migration("20240923145553_initSune")]
+    partial class initSune
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
