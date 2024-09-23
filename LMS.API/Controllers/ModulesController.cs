@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using LMS.API.Data;
+using LMS.API.Models.Dtos;
+using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LMS.API.Data;
-using LMS.API.Models.Entities;
-using LMS.API.Models.Dtos;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 namespace LMS.API.Controllers
 {
@@ -32,9 +27,9 @@ namespace LMS.API.Controllers
         {
             var modules = await _context.Modules
                 .Include(m => m.Course)
-                .Include(m => m.Activites)
+                .Include(m => m.Activities)
                 .ToListAsync();
-                
+
             var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
             return Ok(modulesDto);
         }
@@ -61,7 +56,7 @@ namespace LMS.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutModule(int id, CreateUpdateModuleDto @module)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -86,7 +81,7 @@ namespace LMS.API.Controllers
         {
             var newModule = _mapper.Map<Module>(@module);
 
-            if(newModule != null)
+            if (newModule != null)
             {
                 _context.Modules.Add(newModule);
                 await _context.SaveChangesAsync();
