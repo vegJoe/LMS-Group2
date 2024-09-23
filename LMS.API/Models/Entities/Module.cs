@@ -11,6 +11,6 @@ namespace LMS.API.Models.Entities
         [Required]
         public int CourseId { get; set; }
         public Course? Course { get; set; }
-        public ICollection<Activity>? Activites { get; set; }
+        public ICollection<Activity> Activities { get; set; } = [];
     }
 }
