@@ -15,4 +15,12 @@ namespace LMS.API.Models.Dtos
         public IEnumerable<Module>? Module { get; set; }
 
     }
+
+    public class CreateCourseDto
+    {
+        public string Name { get; set; }
+        public string? Description { get; set; }
+        public DateTime StartDate { get; set; }
+       
+    }
 }
