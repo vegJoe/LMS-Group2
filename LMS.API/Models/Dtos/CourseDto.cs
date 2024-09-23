@@ -7,8 +7,8 @@
         public string Name { get; set; }
         public string? Description { get; set; }
         public DateTime StartDate { get; set; }
-        public IEnumerable<UserDto>? UsersDto { get; set; }
-        public IEnumerable<ModuleDto>? ModulesDto { get; set; }
+        public IEnumerable<UserDto>? Users { get; set; }
+        public IEnumerable<ModuleDto>? Modules { get; set; }
 
     }
 }
