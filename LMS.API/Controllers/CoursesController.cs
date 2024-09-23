@@ -6,6 +6,7 @@ using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LMS.API.Controllers
 {
@@ -172,6 +173,17 @@ namespace LMS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseDto>> CreateCourse(CourseDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState)
+                {
+                    Title = "Validation error",
+                    Detail = "One or more validation errors occurred.",
+                    Status = 400,
+                    Instance = HttpContext.Request.Path
+                });
+            }
+
             try
             {
                 var course = _mapper.Map<Course>(dto);
