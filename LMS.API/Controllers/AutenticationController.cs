@@ -47,7 +47,15 @@ public class AutenticationController : ControllerBase
     public async Task<IActionResult> Authenticate(UserForAuthenticationDto user)
     {
         if (!await _serviceManager.AuthService.ValidateUserAsync(user))
-            return Unauthorized();
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized Access",
+                Detail = "Invalid login attempt. Please check your credentials and try again.",
+                Status = StatusCodes.Status401Unauthorized,
+                Instance = HttpContext.Request.Path
+            });
+        }
 
         TokenDto tokenDto = await _serviceManager.AuthService.CreateTokenAsync(expireTime: true);
         return Ok(tokenDto);
