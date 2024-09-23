@@ -1,6 +1,4 @@
-﻿using LMS.API.Models.Entities;
-
-namespace LMS.API.Models.Dtos
+﻿namespace LMS.API.Models.Dtos
 {
     public class ModuleDto
     {
@@ -9,6 +7,6 @@ namespace LMS.API.Models.Dtos
         public string Description { get; set; }
         public int CourseId { get; set; }
         //public CourseDto Course { get; set; }
-        public IEnumerable<ActivityDto> Activity { get; set; }
+        public IEnumerable<ActivityDto> Activties { get; set; }
     }
 }
