@@ -43,6 +43,8 @@ public class Program
             await app.SeedDataAsync();
         }
 
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
         //ToDo: AddAuthentication

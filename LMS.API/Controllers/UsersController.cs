@@ -29,7 +29,13 @@ namespace LMS.API.Controllers
 
             if (users.Count == 0)
             {
-                return NotFound("No users found.");
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Users not found",
+                    Detail = "No Users were found in the system.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
@@ -44,7 +50,13 @@ namespace LMS.API.Controllers
 
             if (user == null)
             {
-                return NotFound("No user found");
+                return NotFound(new ProblemDetails
+                {
+                    Title = "User not found",
+                    Detail = $"User with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             var userDto = _mapper.Map<UserDto>(user);
@@ -58,7 +70,13 @@ namespace LMS.API.Controllers
 
             if (user == null)
             {
-                return NotFound("No user found");
+                return NotFound(new ProblemDetails
+                {
+                    Title = "User not found",
+                    Detail = $"User with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             _context.Users.Remove(user);

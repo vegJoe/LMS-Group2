@@ -21,7 +21,25 @@ public class AutenticationController : ControllerBase
     public async Task<IActionResult> RegisterUser(UserForRegistrationDto userForRegistration)
     {
         var result = await _serviceManager.AuthService.RegisterUserAsync(userForRegistration);
-        return result.Succeeded ? StatusCode(StatusCodes.Status201Created) : BadRequest(result.Errors);
+
+        if (result.Succeeded)
+        {
+            return StatusCode(StatusCodes.Status201Created);
+        }
+
+        var problemDetails = new ProblemDetails
+        {
+            Title = "User Registration Failed",
+            Detail = "One or more errors occurred during user registration.",
+            Status = StatusCodes.Status400BadRequest,
+            Instance = HttpContext.Request.Path
+        };
+
+        // Add validation errors as an additional field
+        problemDetails.Extensions.Add("errors", result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
+
+        return BadRequest(problemDetails);
+
     }
 
     [HttpPost("login")]
