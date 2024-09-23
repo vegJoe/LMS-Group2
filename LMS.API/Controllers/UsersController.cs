@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
+using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,24 +24,50 @@ namespace LMS.API.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
             if (pageNumber < 1 || pageSize < 1)
             {
                 return BadRequest("Invalid pageNumber or pageSize");
             }
 
-            var totalUsers = await _context.Users.CountAsync();
+            IQueryable<User> query = _context.Users;
+
+            // Apply filtering
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                query = query.Where(u =>
+                    (u.FirstName + " " + u.LastName).Contains(filter) ||
+                    (u.Email != null && u.Email.Contains(filter)));
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = query.OrderBy(u => u.FirstName);
+                        break;
+                    case "email":
+                        query = query.OrderBy(u => u.Email);
+                        break;
+                    default:
+                        query = query.OrderBy(u => u.Id);
+                        break;
+                }
+            }
+
+            var totalUsers = await query.CountAsync();
 
             if (totalUsers == 0)
             {
                 return NotFound("No users found.");
             }
 
-            var users = await _context.Users
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var users = await query.Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
 
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
 
@@ -49,7 +76,7 @@ namespace LMS.API.Controllers
                 TotalUsers = totalUsers,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                Users = userDtos
+                Users = userDtos,
             };
 
             return Ok(response);
