@@ -1,12 +1,11 @@
 ﻿using LMS.API.Service.Contracts;
 using LMS.API.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
-namespace Companies.API.Extensions;
+namespace LMS.API.Extensions;
 
 public static class ServiceExtensions
 {
