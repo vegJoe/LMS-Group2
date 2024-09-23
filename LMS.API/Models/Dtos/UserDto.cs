@@ -1,4 +1,6 @@
-﻿namespace LMS.API.Models.Dtos
+﻿using LMS.API.Models.Entities;
+
+namespace LMS.API.Models.Dtos
 {
     public class UserDto
     {
@@ -9,6 +11,6 @@
         public string Email { get; set; } = string.Empty;
 
         public int CourseId { get; set; }
-        public CourseDto? Course { get; set; }
+        public Course? Course { get; set; }
     }
 }
