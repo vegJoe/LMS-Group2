@@ -65,8 +65,8 @@ namespace LMS.API.Controllers
             }
 
             var modules = await query.Skip((pageNumber - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .ToListAsync();
+                                     .Take(pageSize)
+                                     .ToListAsync();
 
             var moduleDtos = _mapper.Map<IEnumerable<ModuleDto>>(modules);
 
