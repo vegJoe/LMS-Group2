@@ -23,15 +23,70 @@ namespace LMS.API.Controllers
 
         // GET: api/Modules
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule()
+        public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
-            var modules = await _context.Modules
-                .Include(m => m.Course)
-                .Include(m => m.Activities)
-                .ToListAsync();
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pageNumber or pageSize");
+            }
 
-            var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
-            return Ok(modulesDto);
+            IQueryable<Module> query = _context.Modules.Include(c => c.Activities);
+
+            // Apply filtering
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                query = query.Where(u =>
+                    u.Name.Contains(filter) ||
+                    (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(filter)));
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = query.OrderBy(u => u.Name);
+                        break;
+                    case "courseid":
+                        query = query.OrderBy(u => u.CourseId);
+                        break;
+                    default:
+                        query = query.OrderBy(u => u.Id);
+                        break;
+                }
+            }
+
+            var totalModules = await query.CountAsync();
+
+            if (totalModules == 0)
+            {
+                return NotFound("No users found.");
+            }
+
+            var modules = await query.Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
+
+            var moduleDtos = _mapper.Map<IEnumerable<ModuleDto>>(modules);
+
+            var response = new
+            {
+                TotalModules = totalModules,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Modules = moduleDtos,
+            };
+
+            return Ok(response);
+
+            //var modules = await _context.Modules
+            //    .Include(m => m.Course)
+            //    .Include(m => m.Activities)
+            //    .ToListAsync();
+
+            //var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
+            //return Ok(modulesDto);
         }
 
         // GET: api/Modules/5
