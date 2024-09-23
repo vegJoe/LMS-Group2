@@ -21,6 +21,10 @@ namespace LMS.API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves a list of all users
+        /// </summary>
+        /// <returns>Returns a list of users as UserDto, or 404 if no users are found</returns>
         // GET: api/<UsersController>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get()
@@ -36,6 +40,11 @@ namespace LMS.API.Controllers
             return Ok(userDtos);
         }
 
+        /// <summary>
+        /// Retrieves a specific user by their ID
+        /// </summary>
+        /// <param name="id">The ID of the user to retrieve</param>
+        /// <returns>Returns the user as a UserDto if found, or 404 if the user does not exist</returns>
         //GET api/<UsersController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> Get(string id)
@@ -51,6 +60,11 @@ namespace LMS.API.Controllers
             return Ok(userDto);
         }
 
+        /// <summary>
+        /// Deletes a specific user by their ID
+        /// </summary>
+        /// <param name="id">The ID of the user to delete</param>
+        /// <returns>Returns 204 No Content if the deletion is successful, or 404 if the user does not exist</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<UserDto>> Delete(string id)
         {
