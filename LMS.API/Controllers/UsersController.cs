@@ -23,17 +23,36 @@ namespace LMS.API.Controllers
 
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> Get()
+        public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10)
         {
-            var users = await _context.Users.ToListAsync();
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pageNumber or pageSize");
+            }
 
-            if (users.Count == 0)
+            var totalUsers = await _context.Users.CountAsync();
+
+            if (totalUsers == 0)
             {
                 return NotFound("No users found.");
             }
 
+            var users = await _context.Users
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
-            return Ok(userDtos);
+
+            var response = new
+            {
+                TotalUsers = totalUsers,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Users = userDtos
+            };
+
+            return Ok(response);
         }
 
         //GET api/<UsersController>/5
