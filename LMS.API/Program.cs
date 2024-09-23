@@ -5,6 +5,7 @@ using LMS.API.MappingProfile;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace LMS.API;
 
@@ -20,7 +21,13 @@ public class Program
         builder.Services.ConfigureCors();
         builder.Services.ConfigureServices();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSwaggerGen(c =>
+        {
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            c.IncludeXmlComments(xmlPath);
+        });
 
         //ToDo: AddIdentityCore
         builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>()

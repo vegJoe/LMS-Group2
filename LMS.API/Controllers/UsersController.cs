@@ -23,6 +23,14 @@ namespace LMS.API.Controllers
         }
 
         // GET: api/<UsersController>
+        /// <summary>
+        /// Retrieves a paginated list of users.
+        /// </summary>
+        /// <param name="pageNumber">The number of the page to retrieve.</param>
+        /// <param name="pageSize">The number of users per page.</param>
+        /// <param name="sortBy">Optional sort field (name or email).</param>
+        /// <param name="filter">Optional filter string to search users by name or email.</param>
+        /// <returns>A paginated list of users.</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
@@ -38,7 +46,7 @@ namespace LMS.API.Controllers
             {
                 query = query.Where(u =>
                     (u.FirstName + " " + u.LastName).Contains(filter) ||
-                    (u.Email != null && u.Email.Contains(filter)));
+                    (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Contains(filter)));
             }
 
             // Apply sorting
