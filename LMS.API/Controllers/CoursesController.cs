@@ -141,6 +141,8 @@ namespace LMS.API.Controllers
         /// <summary>
         /// Updates an existing course
         /// </summary>
+        /// 
+        [Authorize(Roles = "Teacher")]
         [HttpPut("{id}")]
         public async Task<ActionResult<CourseDto>> UpdateCourse(int id, CreateUpdateCourseDto dto)
         {
@@ -180,6 +182,8 @@ namespace LMS.API.Controllers
         /// <summary>
         /// Creates a new course
         /// </summary>
+        /// 
+        [Authorize(Roles = "Teacher")]
         [HttpPost]
         public async Task<ActionResult<CourseDto>> CreateCourse(CreateUpdateCourseDto dto)
         {
@@ -210,6 +214,8 @@ namespace LMS.API.Controllers
         /// <summary>
         /// Deletes a course by its ID
         /// </summary>
+        /// 
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
