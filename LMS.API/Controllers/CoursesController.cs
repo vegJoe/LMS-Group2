@@ -67,9 +67,12 @@ namespace LMS.API.Controllers
         // PUT: api/Courses/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult<CourseDto>> UpdateCourse(int id, CourseDto dto)
+        public async Task<ActionResult<CourseDto>> UpdateCourse(int id, CreateUpdateCourseDto dto)
         {
-            if (id != dto.Id) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             var course = await _context.Courses
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -111,7 +114,7 @@ namespace LMS.API.Controllers
         // POST: api/Courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CourseDto>> CreateCourse(CourseDto dto)
+        public async Task<ActionResult<CourseDto>> CreateCourse(CreateUpdateCourseDto dto)
         {
             var course = _mapper.Map<Course>(dto);
 
