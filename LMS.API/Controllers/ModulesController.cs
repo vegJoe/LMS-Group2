@@ -3,11 +3,14 @@ using AutoMapper.QueryableExtensions;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LMS.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ModulesController : ControllerBase
@@ -25,6 +28,7 @@ namespace LMS.API.Controllers
         /// Retrieves a list of all modules along with their associated courses and activities
         /// </summary>
         // GET: api/Modules
+        [Authorize(Roles = "Teacher")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModules(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
@@ -87,12 +91,16 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ModuleDto>> GetModule(int id)
         {
-            var moduleDto = await _context.Modules
-                .Where(m => m.Id == id)
-                .ProjectTo<ModuleDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (moduleDto == null)
+            // Fetch the module to get the CourseID
+            var module = await _context.Modules
+                    .Where(m => m.Id == id)
+                    .Select(m => new { m.Id, m.CourseId })
+                    .FirstOrDefaultAsync();
+
+            if (module == null)
             {
                 return NotFound(new ProblemDetails
                 {
@@ -103,7 +111,33 @@ namespace LMS.API.Controllers
                 });
             }
 
-            return Ok(moduleDto);
+            if (userRole == "Teacher")
+            {
+                var moduleDto = await _context.Modules
+                    .Where(m => m.Id == id)
+                    .ProjectTo<ModuleDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+
+                return Ok(moduleDto);
+            }
+
+            // Fetch the users CourseID
+            var userCourseId = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.CourseId)
+                .FirstOrDefaultAsync();
+
+            if (userCourseId != module.CourseId)
+            {
+                return Forbid();
+            }
+
+            var moduleDtoResponse = await _context.Modules
+                .Where(m => m.Id == id)
+                .ProjectTo<ModuleDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+
+            return Ok(moduleDtoResponse);
         }
 
         /// <summary>
