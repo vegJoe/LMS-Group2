@@ -24,7 +24,7 @@ public class AuthService : IAuthService
     public async Task<TokenDto> CreateTokenAsync(bool expireTime)
     {
         SigningCredentials signing = GetSigningCredentials();
-        IEnumerable<Claim> claims = GetClaims();
+        IEnumerable<Claim> claims = await GetClaims();
         JwtSecurityToken tokenOptions = GenerateTokenOptions(signing, claims);
 
         ArgumentNullException.ThrowIfNull(user, nameof(user));
@@ -62,7 +62,7 @@ public class AuthService : IAuthService
         return tokenOptions;
     }
 
-    private IEnumerable<Claim> GetClaims()
+    private async Task<IEnumerable<Claim>> GetClaims()
     {
         ArgumentNullException.ThrowIfNull(user);
 
@@ -73,7 +73,14 @@ public class AuthService : IAuthService
         new Claim(JwtRegisteredClaimNames.Aud, configuration["JwtSettings:Audience"]),
         new Claim(JwtRegisteredClaimNames.Iss, configuration["JwtSettings:Issuer"]),
         // Add more if needed
-    };
+         };
+
+        // Add role claims
+        var roles = await userManager.GetRolesAsync(user);
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
 
         return claims;
