@@ -28,15 +28,74 @@ namespace LMS.API.Controllers
         /// <returns>Returns a list of courses as CourseDto, or 404 if no courses are found</returns>
         // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
-            var coursesDto = await _context.Courses
-                .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pageNumber or pageSize");
+            }
 
-            if (coursesDto == null) return NotFound();
+            IQueryable<Course> query = _context.Courses.Include(c => c.Modules).ThenInclude(m => m.Activities);
 
-            return Ok(coursesDto);
+            // Apply filtering by course name
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                // Apply text filtering by name or date
+                DateTime? parsedDate = DateTime.TryParse(filter, out DateTime result) ? result : (DateTime?)null;
+
+                query = query.Where(u =>
+                    u.Name.Contains(filter) ||
+                    (parsedDate.HasValue && u.StartDate == parsedDate));
+            }
+
+            //Apply sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = query.OrderBy(u => u.Name);
+                        break;
+                    case "startdate":
+                        query = query.OrderBy(u => u.StartDate);
+                        break;
+                    default:
+                        query = query.OrderBy(u => u.Id);
+                        break;
+                }
+            }
+
+            var totalCourses = await query.CountAsync();
+
+            if (totalCourses == 0)
+            {
+                return NotFound("No courses found");
+            }
+
+            var courses = await query.Skip((pageNumber - 1) * pageSize)
+                                     .Take(pageSize)
+                                     .ToListAsync();
+
+            var courseDtos = _mapper.Map<IEnumerable<CourseDto>>(courses);
+
+            var response = new
+            {
+                TotalCourses = totalCourses,
+                PageNumbers = pageNumber,
+                PageSize = pageSize,
+                Courses = courseDtos
+            };
+
+            return Ok(response);
+
+
+            //var coursesDto = await _context.Courses
+            //    .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+            //    .ToListAsync();
+
+            //if (coursesDto == null) return NotFound();
+
+            //return Ok(coursesDto);
         }
 
         /// <summary>

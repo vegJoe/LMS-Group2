@@ -1,6 +1,4 @@
-﻿using LMS.API.Models.Entities;
-
-namespace LMS.API.Models.Dtos
+﻿namespace LMS.API.Models.Dtos
 {
     public class ModuleDto
     {

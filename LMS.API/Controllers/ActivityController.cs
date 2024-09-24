@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
-using AutoMapper;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Entitie = LMS.API.Models.Entities;
 
 namespace LMS.API.Controllers
@@ -23,7 +17,67 @@ namespace LMS.API.Controllers
         public ActivityController(LMSApiContext context, IMapper mapper)
         {
             _context = context;
-            this._mapper = mapper;
+            _mapper = mapper;
+        }
+
+        [HttpGet]
+        // Get all activites
+        public async Task<ActionResult<IEnumerable<ActivityDto>>> GetActivities(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pageNumber or pageSize");
+            }
+
+            IQueryable<LMS.API.Models.Entities.Activity> query = _context.Activities;
+
+            // Apply filtering
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                query = query.Where(u =>
+                    u.Name.Contains(filter) ||
+                    (!string.IsNullOrWhiteSpace(u.Description) && u.Description.Contains(filter)));
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = query.OrderBy(u => u.Name);
+                        break;
+                    case "startdate":
+                        query = query.OrderBy(u => u.StartDate);
+                        break;
+                    default:
+                        query = query.OrderBy(u => u.Id);
+                        break;
+                }
+            }
+
+            var totalActivites = await query.CountAsync();
+
+            if (totalActivites == 0)
+            {
+                return NotFound("No users found.");
+            }
+
+            var activities = await query.Skip((pageNumber - 1) * pageSize)
+                                        .Take(pageSize)
+                                        .ToListAsync();
+
+            var activityDtos = _mapper.Map<IEnumerable<ActivityDto>>(activities);
+
+            var response = new
+            {
+                TotalActivites = totalActivites,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Activities = activityDtos,
+            };
+
+            return Ok(response);
         }
 
         /// <summary>
@@ -36,7 +90,7 @@ namespace LMS.API.Controllers
         public async Task<ActionResult<ActivityDto>> GetActivitys(int id)
         {
             var activityDto = await _context.Activities
-                .Where(a => a.Id == id) 
+                .Where(a => a.Id == id)
                 .Include(at => at.Type)
                 .FirstOrDefaultAsync();
 

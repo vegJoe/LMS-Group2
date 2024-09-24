@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
+using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,18 +27,71 @@ namespace LMS.API.Controllers
         /// </summary>
         /// <returns>Returns a list of users as UserDto, or 404 if no users are found</returns>
         // GET: api/<UsersController>
+        /// <summary>
+        /// Retrieves a paginated list of users.
+        /// </summary>
+        /// <param name="pageNumber">The number of the page to retrieve.</param>
+        /// <param name="pageSize">The number of users per page.</param>
+        /// <param name="sortBy">Optional sort field (name or email).</param>
+        /// <param name="filter">Optional filter string to search users by name or email.</param>
+        /// <returns>A paginated list of users.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> Get()
+        public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
-            var users = await _context.Users.ToListAsync();
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pageNumber or pageSize");
+            }
 
-            if (users.Count == 0)
+            IQueryable<User> query = _context.Users;
+
+            // Apply filtering
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                query = query.Where(u =>
+                    (u.FirstName + " " + u.LastName).Contains(filter) ||
+                    (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Contains(filter)));
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = query.OrderBy(u => u.FirstName);
+                        break;
+                    case "email":
+                        query = query.OrderBy(u => u.Email);
+                        break;
+                    default:
+                        query = query.OrderBy(u => u.Id);
+                        break;
+                }
+            }
+
+            var totalUsers = await query.CountAsync();
+
+            if (totalUsers == 0)
             {
                 return NotFound("No users found.");
             }
 
+            var users = await query.Skip((pageNumber - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
+
             var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
-            return Ok(userDtos);
+
+            var response = new
+            {
+                TotalUsers = totalUsers,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Users = userDtos,
+            };
+
+            return Ok(response);
         }
 
         /// <summary>
