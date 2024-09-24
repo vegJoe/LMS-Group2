@@ -85,8 +85,18 @@ namespace LMS.API.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific module by its ID
+        /// Retrieves a specific module by its ID, with role-based access control.
         /// </summary>
+        /// <remarks>
+        /// This endpoint allows users to retrieve module details based on their role:
+        /// - Teachers can access any module regardless of course ID.
+        /// - Students can only access modules for courses they are enrolled in.
+        /// </remarks>
+        /// <param name="id">The ID of the module to retrieve.</param>
+        /// <returns>A ModuleDto object if found, or a NotFound or Forbid response based on access rules.</returns>
+        /// <response code="200">Returns the module details if the user has access.</response>
+        /// <response code="403">Forbidden if the user is not authorized to access the module.</response>
+        /// <response code="404">Not found if the module does not exist.</response>
         // GET: api/Modules/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ModuleDto>> GetModule(int id)
@@ -141,9 +151,16 @@ namespace LMS.API.Controllers
         }
 
         /// <summary>
-        /// Updates an existing module
+        /// Retrieves resources restricted to users with the Teacher role.
         /// </summary>
+        /// <remarks>
+        /// This endpoint can only be accessed by users who have the "Teacher" role.
+        /// Unauthorized access will result in a 403 Forbidden response.
+        /// </remarks>
+        /// <response code="200">Returns the requested resource if the user is authorized.</response>
+        /// <response code="403">Forbidden if the user does not have the Teacher role.</response>
         // PUT: api/Modules/5
+        [Authorize(Roles = "Teacher")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutModule(int id, CreateUpdateModuleDto moduleDto)
         {
@@ -172,9 +189,15 @@ namespace LMS.API.Controllers
         }
 
         /// <summary>
-        /// Creates a new module
+        /// Retrieves resources restricted to users with the Teacher role.
         /// </summary>
-        // POST: api/Modules
+        /// <remarks>
+        /// This endpoint can only be accessed by users who have the "Teacher" role.
+        /// Unauthorized access will result in a 403 Forbidden response.
+        /// </remarks>
+        /// <response code="200">Returns the requested resource if the user is authorized.</response>
+        /// <response code="403">Forbidden if the user does not have the Teacher role.</response>
+        [Authorize(Roles = "Teacher")]
         [HttpPost]
         public async Task<ActionResult<ModuleDto>> PostModule(CreateUpdateModuleDto moduleDto)
         {
@@ -197,9 +220,16 @@ namespace LMS.API.Controllers
         }
 
         /// <summary>
-        /// Deletes a specific module by its ID
+        /// Retrieves resources restricted to users with the Teacher role.
         /// </summary>
+        /// <remarks>
+        /// This endpoint can only be accessed by users who have the "Teacher" role.
+        /// Unauthorized access will result in a 403 Forbidden response.
+        /// </remarks>
+        /// <response code="200">Returns the requested resource if the user is authorized.</response>
+        /// <response code="403">Forbidden if the user does not have the Teacher role.</response>
         // DELETE: api/Modules/5
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteModule(int id)
         {
