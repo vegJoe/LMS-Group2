@@ -3,11 +3,14 @@ using AutoMapper.QueryableExtensions;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LMS.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CoursesController : ControllerBase
@@ -25,6 +28,7 @@ namespace LMS.API.Controllers
         /// Retrieves a list of all available courses
         /// </summary>
         /// <returns>Returns a list of courses as CourseDto, or 404 if no courses are found</returns>
+        [Authorize(Roles = "Teacher")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
@@ -81,15 +85,44 @@ namespace LMS.API.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific course by its ID
+        /// Retrieves a specific course by its ID, with role-based access control.
         /// </summary>
+        /// <remarks>
+        /// - Teachers can access any course.
+        /// - Students can only access courses they are enrolled in.
+        /// </remarks>
+        /// <param name="id">The ID of the course to retrieve.</param>
+        /// <returns>
+        /// A CourseDto object if the user is authorized to access the course,
+        /// or a NotFound or Forbid response based on access rules.
+        /// </returns>
+        /// <response code="200">Returns the course details if the user has access.</response>
+        /// <response code="403">Forbidden if the user does not have access to the course.</response>
+        /// <response code="404">Not found if the course does not exist.</response>
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole == "Student")
+            {
+                var userCourseId = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => u.CourseId)
+                    .FirstOrDefaultAsync();
+
+                if (userCourseId != id)
+                {
+                    return Forbid(); // Deny access for students not enrolled
+                }
+            }
+
             var courseDto = await _context.Courses
-                .Where(c => c.Id == id)
-                .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
+                    .Where(c => c.Id == id)
+                    .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync();
+
 
             if (courseDto == null)
             {
