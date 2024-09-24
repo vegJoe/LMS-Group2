@@ -5,6 +5,7 @@ using LMS.API.MappingProfile;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace LMS.API;
@@ -21,9 +22,27 @@ public class Program
         builder.Services.ConfigureCors();
         builder.Services.ConfigureServices();
         builder.Services.AddEndpointsApiExplorer();
-
         builder.Services.AddSwaggerGen(c =>
         {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Version = "v1",
+                Title = "LMS Api",
+                Description = "A ASP.NET Core Web API for Learning Management System.",
+                TermsOfService = new Uri("https://example.com/terms"),
+                Contact = new OpenApiContact
+                {
+                    Name = "Group 2",
+                    Email = string.Empty,
+                },
+                License = new OpenApiLicense
+                {
+                    Name = "Use under LICX",
+                    Url = new Uri("https://example.com/license")
+                }
+            });
+
+            // Set the comments path for the Swagger JSON and UI.
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             c.IncludeXmlComments(xmlPath);
@@ -46,7 +65,10 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "LMS Api");
+            });
             await app.SeedDataAsync();
         }
 

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
 
@@ -14,8 +14,10 @@ namespace LMS.API.MappingProfile
                 .ReverseMap();
 
             CreateMap<Course, CourseDto>().ReverseMap();
-
+            
             CreateMap<Module, ModuleDto>().ReverseMap();
+            
+            CreateMap<Course, CreateUpdateCourseDto>().ReverseMap();
 
             CreateMap<Activity, ActivityDto>().ReverseMap();
 
