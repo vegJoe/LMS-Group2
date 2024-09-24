@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace LMS.API.Controllers;
 
 
+/// <summary>
+/// Handles user authentication and registration
+/// </summary>
 [Route("api/authentication")]
 [ApiController]
 public class AutenticationController : ControllerBase
@@ -17,6 +20,11 @@ public class AutenticationController : ControllerBase
         _serviceManager = serviceManager;
     }
 
+    /// <summary>
+    /// Registers a new user
+    /// </summary>
+    /// <param name="userForRegistration">The user registration details</param>
+    /// <returns>Returns 201 Created if the registration is successful, otherwise returns a bad request with the errors</returns>
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser(UserForRegistrationDto userForRegistration)
     {
@@ -42,6 +50,11 @@ public class AutenticationController : ControllerBase
 
     }
 
+    /// <summary>
+    /// Authenticates an existing user and generates a token
+    /// </summary>
+    /// <param name="user">The user's authentication details</param>
+    /// <returns>Returns an authentication token if successful, or 401 Unauthorized if validation fails</returns>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Authenticate(UserForAuthenticationDto user)
