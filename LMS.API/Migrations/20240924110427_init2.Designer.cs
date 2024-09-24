@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS.API.Migrations
 {
     [DbContext(typeof(LMSApiContext))]
-    [Migration("20240923172343_init")]
-    partial class init
+    [Migration("20240924110427_init2")]
+    partial class init2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -349,7 +349,7 @@ namespace LMS.API.Migrations
             modelBuilder.Entity("LMS.API.Models.Entities.Activity", b =>
                 {
                     b.HasOne("LMS.API.Models.Entities.Module", "Module")
-                        .WithMany("Activites")
+                        .WithMany("Activities")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -445,7 +445,7 @@ namespace LMS.API.Migrations
 
             modelBuilder.Entity("LMS.API.Models.Entities.Module", b =>
                 {
-                    b.Navigation("Activites");
+                    b.Navigation("Activities");
                 });
 #pragma warning restore 612, 618
         }

@@ -135,7 +135,7 @@ namespace LMS.API.Data
                 if (result.Succeeded)
                 {
                     // Assign roles here
-                    var role = i % 3 == 0 ? "Admin" : i % 3 == 1 ? "Instructor" : "Student";
+                    var role = i % 2 == 0 ? "Teacher" : "Student";
                     await userManager.AddToRoleAsync(user, role);
                 }
                 else
