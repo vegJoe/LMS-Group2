@@ -2,6 +2,7 @@
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
 using LMS.API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase

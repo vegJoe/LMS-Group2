@@ -68,10 +68,13 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, user.UserName!),
-            new Claim(ClaimTypes.NameIdentifier, user.Id!),
-            //Add more if needed
-        };
+        new Claim(ClaimTypes.Name, user.UserName!),
+        new Claim(ClaimTypes.NameIdentifier, user.Id!),
+        new Claim(JwtRegisteredClaimNames.Aud, configuration["JwtSettings:Audience"]),
+        new Claim(JwtRegisteredClaimNames.Iss, configuration["JwtSettings:Issuer"]),
+        // Add more if needed
+    };
+
 
         return claims;
     }

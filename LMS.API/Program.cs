@@ -1,6 +1,5 @@
-
-using Companies.API.Extensions;
 using LMS.API.Data;
+using LMS.API.Extensions;
 using LMS.API.MappingProfile;
 using LMS.API.Models.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +45,32 @@ public class Program
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             c.IncludeXmlComments(xmlPath);
+            // Add security definition for Bearer token
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Please enter the JWT Bearer token.",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            });
+
+            // Add security requirement for Bearer token
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
         });
 
         //ToDo: AddIdentityCore
@@ -76,7 +101,6 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
-        //ToDo: AddAuthentication
         app.UseAuthentication();
         app.UseAuthorization();
 
