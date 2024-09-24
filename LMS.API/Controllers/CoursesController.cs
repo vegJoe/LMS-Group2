@@ -249,6 +249,44 @@ namespace LMS.API.Controllers
         [HttpGet("{id}/students")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetStudentsForCourse(int id)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (userRole == "Teacher")
+            {
+                // Teachers can access any course, so fetch all students and return immediately
+                var courseWithUsers = await _context.Courses
+                    .Include(c => c.Users)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
+                if (courseWithUsers == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
+
+                var userDtos = _mapper.Map<IEnumerable<UserDto>>(courseWithUsers.Users);
+                return Ok(userDtos);
+            }
+
+            // For students, check enrollment first
+            if (userRole == "Student")
+            {
+                var isEnrolled = await _context.Users
+                    .AnyAsync(u => u.Id == userId && u.CourseId == id);
+
+                if (!isEnrolled)
+                {
+                    return Forbid();
+                }
+            }
+
+            // Now fetch the students for the course
             var course = await _context.Courses
                 .Include(c => c.Users)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -264,8 +302,10 @@ namespace LMS.API.Controllers
                 });
             }
 
-            var userDtos = _mapper.Map<IEnumerable<UserDto>>(course.Users);
-            return Ok(userDtos);
+            //Excluding the user making the requst
+            var userDtosResponse = _mapper.Map<IEnumerable<UserDto>>(course.Users
+                .Where(u => u.Id != userId));
+            return Ok(userDtosResponse);
         }
     }
 }
