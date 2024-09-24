@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using LMS.API.Models.Entities;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,7 +58,7 @@ namespace LMS.API.Data
 
         private static async Task CreateRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            string[] roleNames = { "Admin", "Instructor", "Student" };
+            string[] roleNames = { "Teacher", "Student" };
 
             foreach (var roleName in roleNames)
             {
