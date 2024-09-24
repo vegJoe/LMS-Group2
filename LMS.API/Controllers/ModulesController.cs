@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
@@ -29,6 +29,25 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ModuleDto>>> GetModule(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
+            var modules = await _context.Modules
+                .Include(m => m.Course)
+                .Include(m => m.Activites)
+                .ToListAsync();
+
+            if (modules == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Moduels not found",
+                    Detail = "No Moduels were found in the system.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
+            }
+
+            var modulesDto = _mapper.Map<IEnumerable<ModuleDto>>(modules);
+            return Ok(modulesDto);
+            
             if (pageNumber < 1 || pageSize < 1)
             {
                 return BadRequest("Invalid pageNumber or pageSize");
@@ -109,7 +128,13 @@ namespace LMS.API.Controllers
 
             if (@module == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Module not found",
+                    Detail = $"Module with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             return Ok(@module);
@@ -132,9 +157,16 @@ namespace LMS.API.Controllers
             }
 
             var existingModule = await _context.Modules.FindAsync(id);
+
             if (existingModule == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Module not found",
+                    Detail = $"Module with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             _mapper.Map(module, existingModule);
@@ -162,7 +194,13 @@ namespace LMS.API.Controllers
                 await _context.SaveChangesAsync();
                 return StatusCode(201, "New module was created"); //statuscode 201 for "Created".
             }
-            return BadRequest("Could not create new module");
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Module Creation Failed",
+                Detail = "The module could not be created due to an internal error.",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext.Request.Path
+            });
         }
 
 
@@ -178,7 +216,13 @@ namespace LMS.API.Controllers
             var @module = await _context.Modules.FindAsync(id);
             if (@module == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Module not found",
+                    Detail = $"Module with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             _context.Modules.Remove(@module);

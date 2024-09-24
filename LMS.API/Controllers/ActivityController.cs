@@ -96,7 +96,13 @@ namespace LMS.API.Controllers
 
             if (activityDto == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Activity not found",
+                    Detail = $"Activity with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             return Ok(activityDto);
@@ -115,13 +121,25 @@ namespace LMS.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new ValidationProblemDetails(ModelState)
+                {
+                    Title = "Validation Error",
+                    Detail = "One or more validation errors occurred. Please review the errors and try again.",
+                    Status = 400,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             var existingActivity = await _context.Activities.FindAsync(id);
             if (existingActivity == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Activity not found",
+                    Detail = $"Activity with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             _mapper.Map(activity, existingActivity);
@@ -141,15 +159,24 @@ namespace LMS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ActivityDto>> PostActivity(CreateUpdateActivityDto @activity)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState)
+                {
+                    Title = "Validation error",
+                    Detail = "One or more validation errors occurred.",
+                    Status = 400,
+                    Instance = HttpContext.Request.Path
+                });
+            }
             var newActivity = _mapper.Map<Entitie.Activity>(@activity);
 
-            if (newActivity != null)
-            {
-                _context.Activities.Add(newActivity);
-                await _context.SaveChangesAsync();
-                return StatusCode(201, "New activity was created"); //statuscode 201 for "Created".
-            }
-            return BadRequest("Could not create new activity");
+            _context.Activities.Add(newActivity);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(201, "New activity was created"); //statuscode 201 for "Created".
+            
         }
 
         /// <summary>
@@ -164,7 +191,13 @@ namespace LMS.API.Controllers
             var activity = await _context.Activities.FindAsync(id);
             if (activity == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Activity not found",
+                    Detail = $"Activity with ID {id} was not found.",
+                    Status = 404,
+                    Instance = HttpContext.Request.Path
+                });
             }
 
             _context.Activities.Remove(activity);

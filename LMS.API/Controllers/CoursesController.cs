@@ -30,6 +30,26 @@ namespace LMS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
+
+          
+                var coursesDto = await _context.Courses
+                    .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+                    .ToListAsync();
+
+                if (coursesDto == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Courses not found",
+                        Detail = "No courses were found in the system.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
+
+                return Ok(coursesDto);
+            
+
             if (pageNumber < 1 || pageSize < 1)
             {
                 return BadRequest("Invalid pageNumber or pageSize");
@@ -95,7 +115,6 @@ namespace LMS.API.Controllers
 
             //if (coursesDto == null) return NotFound();
 
-            //return Ok(coursesDto);
         }
 
         /// <summary>
@@ -107,14 +126,24 @@ namespace LMS.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDto>> GetCourse(int id)
         {
-            var courseDto = await _context.Courses
-            .Where(c => c.Id == id)
-            .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
+           
+                var courseDto = await _context.Courses
+                .Where(c => c.Id == id)
+                .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
 
-            if (courseDto == null) return NotFound();
+                if (courseDto == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
 
-            return Ok(courseDto);
+                return Ok(courseDto);
         }
 
         /// <summary>
@@ -128,41 +157,46 @@ namespace LMS.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<CourseDto>> UpdateCourse(int id, CreateUpdateCourseDto dto)
         {
+
+            if (id != dto.Id)
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "ID Mismatch",
+                    Detail = $"The course ID in the URL ({id}) does not match the ID in the body ({dto.Id}).",
+                    Status = 400,
+                    Instance = HttpContext.Request.Path
+                });
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             var course = await _context.Courses
-                .FirstOrDefaultAsync(c => c.Id == id);
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (course == null) return NotFound();
+                if (course == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
 
-            _mapper.Map(dto, course);
+                _mapper.Map(dto, course);
+                // Mark the entity as modified so that Entity Framework knows it needs to be updated in the database
+                _context.Entry(course).State = EntityState.Modified;
 
-            // Mark the entity as modified so that Entity Framework knows it needs to be updated in the database
-            _context.Entry(course).State = EntityState.Modified;
-
-            try
-            {
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                //Does the course exist in the database
-                if (!CourseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            var updatedCourseDto = _mapper.Map<CourseDto>(course);
+                var updatedCourseDto = _mapper.Map<CourseDto>(course);
 
-            return Ok(updatedCourseDto);
+                return Ok(updatedCourseDto);
+           
         }
 
         /// <summary>
@@ -175,13 +209,30 @@ namespace LMS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseDto>> CreateCourse(CreateUpdateCourseDto dto)
         {
-            var course = _mapper.Map<Course>(dto);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState)
+                {
+                    Title = "Validation error",
+                    Detail = "One or more validation errors occurred when trying to create the course.",
+                    Status = 400,
+                    Instance = HttpContext.Request.Path
+                });
+            }
 
-            _context.Courses.Add(course);
-            await _context.SaveChangesAsync();
+                var course = _mapper.Map<Course>(dto);
 
-            return CreatedAtAction("GetCourse", new { id = course.Id }, _mapper.Map<CourseDto>(course));
+                _context.Courses.Add(course);
+                await _context.SaveChangesAsync();
 
+                return CreatedAtAction(nameof(GetCourse), new { id = course.Id }, new ProblemDetails
+                {
+                    Title = "Resource created",
+                    Detail = $"Course with ID {course.Id} has been created successfully.",
+                    Status = 201,
+                    Instance = HttpContext.Request.Path
+                });
+            
         }
 
         /// <summary>
@@ -193,14 +244,24 @@ namespace LMS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var course = await _context.Courses.FindAsync(id);
+           
+                var course = await _context.Courses.FindAsync(id);
 
-            if (course == null) return NotFound();
+                if (course == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
 
-            _context.Courses.Remove(course);
-            await _context.SaveChangesAsync();
+                _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
 
-            return NoContent();
+                return NoContent();
         }
 
         private bool CourseExists(int id)
@@ -216,15 +277,26 @@ namespace LMS.API.Controllers
         [HttpGet("{id}/students")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetStudentsForCourse(int id)
         {
-            var course = await _context.Courses
-                .Include(c => c.Users)
-                .FirstOrDefaultAsync(c => c.Id == id);
+           
+                var course = await _context.Courses
+                    .Include(c => c.Users)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (course == null) return NotFound($"Course with ID {id} not found.");
+                if (course == null)
+                {
+                    return NotFound(new ProblemDetails
+                    {
+                        Title = "Course not found",
+                        Detail = $"Course with ID {id} was not found.",
+                        Status = 404,
+                        Instance = HttpContext.Request.Path
+                    });
+                }
 
-            var userDtos = _mapper.Map<IEnumerable<UserDto>>(course.Users);
+                var userDtos = _mapper.Map<IEnumerable<UserDto>>(course.Users);
 
-            return Ok(userDtos);
+                return Ok(userDtos);
+            
         }
     }
 }
