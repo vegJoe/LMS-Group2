@@ -77,6 +77,13 @@ public class Program
         builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<LMSApiContext>().AddDefaultTokenProviders();
 
+        //Add Auth Options
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireTeacherRole", policy => policy.RequireRole("Teacher"));
+            options.AddPolicy("RequireStudentRole", policy => policy.RequireRole("Student"));
+        });
+
         builder.Services.AddDbContext<LMSApiContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("LMSApiContext") ??
         throw new InvalidOperationException("Connection string 'LMSApiContext' not found.")));

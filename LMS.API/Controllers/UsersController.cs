@@ -37,6 +37,9 @@ namespace LMS.API.Controllers
         /// <param name="sortBy">Optional sort field (name or email).</param>
         /// <param name="filter">Optional filter string to search users by name or email.</param>
         /// <returns>A paginated list of users.</returns>
+        /// 
+
+        [Authorize(Roles = "Teacher")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
@@ -108,6 +111,7 @@ namespace LMS.API.Controllers
         /// <param name="id">The ID of the user to retrieve</param>
         /// <returns>Returns the user as a UserDto if found, or 404 if the user does not exist</returns>
         //GET api/<UsersController>/5
+        [Authorize(Roles = "Teacher")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> Get(string id)
         {
@@ -133,6 +137,8 @@ namespace LMS.API.Controllers
         /// </summary>
         /// <param name="id">The ID of the user to delete</param>
         /// <returns>Returns 204 No Content if the deletion is successful, or 404 if the user does not exist</returns>
+        /// 
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<UserDto>> Delete(string id)
         {

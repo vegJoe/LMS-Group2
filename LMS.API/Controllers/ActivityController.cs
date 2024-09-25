@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using LMS.API.Data;
 using LMS.API.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Entitie = LMS.API.Models.Entities;
 
 namespace LMS.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ActivityController : ControllerBase
@@ -21,6 +23,7 @@ namespace LMS.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Teacher")]
         // Get all activites
         public async Task<ActionResult<IEnumerable<ActivityDto>>> GetActivities(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
         {
@@ -86,6 +89,7 @@ namespace LMS.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         // GET: api/Activity/5
+        [Authorize(Roles = "Teacher")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ActivityDto>> GetActivitys(int id)
         {
@@ -116,6 +120,7 @@ namespace LMS.API.Controllers
         /// <returns></returns>
         // PUT: api/Activity/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Teacher")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutActivityDto(int id, CreateUpdateActivityDto @activity)
         {
@@ -156,6 +161,7 @@ namespace LMS.API.Controllers
         /// <returns>A status code 201 if the activity is successfully created, otherwise returns a bad request</returns>
         // POST: api/Activity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Teacher")]
         [HttpPost]
         public async Task<ActionResult<ActivityDto>> PostActivity(CreateUpdateActivityDto @activity)
         {
@@ -176,7 +182,7 @@ namespace LMS.API.Controllers
             await _context.SaveChangesAsync();
 
             return StatusCode(201, "New activity was created"); //statuscode 201 for "Created".
-            
+
         }
 
         /// <summary>
@@ -185,6 +191,7 @@ namespace LMS.API.Controllers
         /// <param name="id">The ID of the activity to be deleted</param>
         /// <returns>A status code 200 with a confirmation message if the deletion is successful, or a 404 if the activity is not found</returns>
         // DELETE: api/Activity/5
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteActivityDto(int id)
         {
