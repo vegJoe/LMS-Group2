@@ -100,6 +100,17 @@ public class AuthService : IAuthService
     {
         ArgumentNullException.ThrowIfNull(userForRegistration, nameof(userForRegistration));
 
+        // Check if the provided role is either "Student" or "Teacher"
+        var validRoles = new[] { "Student", "Teacher" };
+        if (!validRoles.Contains(userForRegistration.Role))
+        {
+            // Return an error message if the role is not valid
+            return IdentityResult.Failed(new IdentityError
+            {
+                Description = $"Invalid role: '{userForRegistration.Role}'. Only 'Student' or 'Teacher' roles are allowed."
+            });
+        }
+
         var user = new User
         {
             UserName = userForRegistration.UserName,
@@ -109,23 +120,25 @@ public class AuthService : IAuthService
             CourseId = userForRegistration.CourseId,
         };
 
+        // Create the user
         IdentityResult result = await userManager.CreateAsync(user, userForRegistration.Password!);
 
-        if (result.Succeeded)
+        if (!result.Succeeded)
         {
-            // Assign role (teacher or student)
-            string role = userForRegistration.Role ?? "Student"; // Defaults to Student if not assigned
-            var roleResult = await userManager.AddToRoleAsync(user, role);
-
-            if (!roleResult.Succeeded)
-            {
-                // If not successful delete the user
-                await userManager.DeleteAsync(user);
-                return IdentityResult.Failed(roleResult.Errors.ToArray());
-            }
+            // If user creation fails, return the error
+            return result;
         }
 
-        return result;
+        // Assign the role to the user
+        var roleResult = await userManager.AddToRoleAsync(user, userForRegistration.Role);
+        if (!roleResult.Succeeded)
+        {
+            // If role assignment fails, delete the user and return the role-related errors
+            await userManager.DeleteAsync(user);
+            return IdentityResult.Failed(roleResult.Errors.ToArray());
+        }
+
+        return IdentityResult.Success;
     }
 
     public async Task<bool> ValidateUserAsync(UserForAuthenticationDto userDto)
