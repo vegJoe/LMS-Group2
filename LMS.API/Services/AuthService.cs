@@ -111,6 +111,20 @@ public class AuthService : IAuthService
 
         IdentityResult result = await userManager.CreateAsync(user, userForRegistration.Password!);
 
+        if (result.Succeeded)
+        {
+            // Assign role (teacher or student)
+            string role = userForRegistration.Role ?? "Student"; // Defaults to Student if not assigned
+            var roleResult = await userManager.AddToRoleAsync(user, role);
+
+            if (!roleResult.Succeeded)
+            {
+                // If not successful delete the user
+                await userManager.DeleteAsync(user);
+                return IdentityResult.Failed(roleResult.Errors.ToArray());
+            }
+        }
+
         return result;
     }
 
