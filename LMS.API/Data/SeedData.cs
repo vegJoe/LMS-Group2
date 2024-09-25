@@ -81,12 +81,38 @@ namespace LMS.API.Data
 
         private static List<Module> GenerateModules(int count, List<Course> courses)
         {
+            var modules = new List<Module>();
             var faker = new Faker<Module>()
                 .RuleFor(m => m.Name, f => f.Lorem.Word())
-                .RuleFor(m => m.Description, f => f.Lorem.Sentence())
-                .RuleFor(m => m.CourseId, f => f.PickRandom(courses).Id);
+                .RuleFor(m => m.Description, f => f.Lorem.Sentence());
 
-            return faker.Generate(count);
+            Random random = new Random();
+
+            foreach (var course in courses)
+            {
+                DateTime currentStartDate = course.StartDate;
+
+                for (int i = 0; i < count; i++)
+                {
+                    
+                    int moduleDurationInDays = random.Next(7, 28); // Each module lasts between 1 and 4 weeks
+
+                    var module = faker
+                        .RuleFor(m => m.CourseId, _ => course.Id)
+                        .RuleFor(m => m.StartDate, _ => currentStartDate)
+                        .RuleFor(m => m.EndDate, _ =>
+                        {
+                            var endDate = currentStartDate.AddDays(moduleDurationInDays);
+                            currentStartDate = endDate.AddDays(1); // The next module starts the day after the previous one
+                            return endDate;
+                        })
+                        .Generate();
+
+                    modules.Add(module);
+                }
+            }
+
+            return modules;
         }
 
         private static List<ActivityType> GenerateActivityTypes(int count)
