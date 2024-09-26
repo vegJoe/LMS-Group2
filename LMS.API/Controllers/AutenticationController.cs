@@ -38,13 +38,10 @@ public class AutenticationController : ControllerBase
         var problemDetails = new ProblemDetails
         {
             Title = "User Registration Failed",
-            Detail = "One or more errors occurred during user registration.",
+            Detail = string.Join(", ", result.Errors.Select(e => e.Description)),
             Status = StatusCodes.Status400BadRequest,
             Instance = HttpContext.Request.Path
         };
-
-        // Add validation errors as an additional field
-        problemDetails.Extensions.Add("errors", result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
 
         return BadRequest(problemDetails);
 

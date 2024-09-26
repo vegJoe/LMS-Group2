@@ -16,4 +16,5 @@ public record UserForRegistrationDto
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress]
     public string? Email { get; init; }
+    public string Role { get; set; } = "Student"; // Default role
 }
