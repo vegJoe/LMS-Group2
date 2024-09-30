@@ -143,7 +143,7 @@ namespace LMS.API.Controllers
         /// </summary>
         /// 
         [Authorize(Roles = "Student")]
-        [HttpGet]
+        [HttpGet("student")]
         public async Task<ActionResult<CourseDto>> GetStudentCourse()
         {
             // Get the user id from claims
