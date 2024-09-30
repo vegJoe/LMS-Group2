@@ -73,7 +73,7 @@ public class AutenticationController : ControllerBase
 
     [HttpPost("refresh")]
     [AllowAnonymous]
-    public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
+    public async Task<IActionResult> Refresh(TokenDto tokenDto)
     {
         if (tokenDto == null)
         {
