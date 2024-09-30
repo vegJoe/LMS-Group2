@@ -138,12 +138,54 @@ namespace LMS.API.Controllers
             return Ok(courseDto);
         }
 
+        /// <summary>
+        /// Gets course details for the student that calls this endpoint
+        /// </summary>
+        /// 
         [Authorize(Roles = "Student")]
         [HttpGet]
         public async Task<ActionResult<CourseDto>> GetStudentCourse()
         {
             // Get the user id from claims
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Fetch the course ID for the student
+            var courseId = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.CourseId)
+                .FirstOrDefaultAsync();
+
+            // If no course ID is found, return NotFound
+            if (courseId == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Course not found",
+                    Detail = "No course is associated with this student.",
+                    Status = StatusCodes.Status404NotFound,
+                    Instance = HttpContext.Request.Path
+                });
+            }
+
+            // Fetch the course details using the course ID
+            var courseDto = await _context.Courses
+                .Where(c => c.Id == courseId)
+                .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+
+            // If no course is found, return NotFound
+            if (courseDto == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Course not found",
+                    Detail = $"Course with ID {courseId} was not found.",
+                    Status = StatusCodes.Status404NotFound,
+                    Instance = HttpContext.Request.Path
+                });
+            }
+
+            return Ok(courseDto);
         }
 
 
