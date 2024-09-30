@@ -70,5 +70,37 @@ public class AutenticationController : ControllerBase
         TokenDto tokenDto = await _serviceManager.AuthService.CreateTokenAsync(expireTime: true);
         return Ok(tokenDto);
     }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
+    {
+        if (tokenDto == null)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Refresh token cannot be null",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext.Request.Path
+            });
+        }
+
+        try
+        {
+            var newTokenDto = await _serviceManager.AuthService.RefreshTokenAsync(tokenDto);
+            return Ok(newTokenDto);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = ex.Message,
+                Status = StatusCodes.Status401Unauthorized,
+                Instance = HttpContext.Request.Path
+            });
+        }
+    }
 }
 

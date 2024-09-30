@@ -161,7 +161,21 @@ public class AuthService : IAuthService
             //ToDo: Handle with middleware and custom exception class
             throw new ArgumentException("The TokenDto has som invalid values");
 
-        this.user = user;
+        // Generate new access token and refresh token
+        this.user = user; // Set the user for the token creation
+        user.RefreshToken = GenerateRefreshToken(); // Generate a new refresh token
+        user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(2); // Update the expiration
+
+        // Save the updated user to the database
+        var updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            // Handle update failure (throw or log errors)
+            throw new Exception("Failed to update user with new refresh token");
+        }
+
+        // Create and return the new tokens
+        return await CreateTokenAsync(expireTime: false);
 
         return await CreateTokenAsync(expireTime: false);
     }
