@@ -138,6 +138,15 @@ namespace LMS.API.Controllers
             return Ok(courseDto);
         }
 
+        [Authorize(Roles = "Student")]
+        [HttpGet]
+        public async Task<ActionResult<CourseDto>> GetStudentCourse()
+        {
+            // Get the user id from claims
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+
         /// <summary>
         /// Updates an existing course
         /// </summary>
