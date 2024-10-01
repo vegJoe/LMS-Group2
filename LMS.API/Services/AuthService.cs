@@ -100,6 +100,17 @@ public class AuthService : IAuthService
     {
         ArgumentNullException.ThrowIfNull(userForRegistration, nameof(userForRegistration));
 
+        // Check if the provided role is either "Student" or "Teacher"
+        var validRoles = new[] { "Student", "Teacher" };
+        if (!validRoles.Contains(userForRegistration.Role))
+        {
+            // Return an error message if the role is not valid
+            return IdentityResult.Failed(new IdentityError
+            {
+                Description = $"Invalid role: '{userForRegistration.Role}'. Only 'Student' or 'Teacher' roles are allowed."
+            });
+        }
+
         var user = new User
         {
             UserName = userForRegistration.UserName,
@@ -109,9 +120,25 @@ public class AuthService : IAuthService
             CourseId = userForRegistration.CourseId,
         };
 
+        // Create the user
         IdentityResult result = await userManager.CreateAsync(user, userForRegistration.Password!);
 
-        return result;
+        if (!result.Succeeded)
+        {
+            // If user creation fails, return the error
+            return result;
+        }
+
+        // Assign the role to the user
+        var roleResult = await userManager.AddToRoleAsync(user, userForRegistration.Role);
+        if (!roleResult.Succeeded)
+        {
+            // If role assignment fails, delete the user and return the role-related errors
+            await userManager.DeleteAsync(user);
+            return IdentityResult.Failed(roleResult.Errors.ToArray());
+        }
+
+        return IdentityResult.Success;
     }
 
     public async Task<bool> ValidateUserAsync(UserForAuthenticationDto userDto)
@@ -134,8 +161,20 @@ public class AuthService : IAuthService
             //ToDo: Handle with middleware and custom exception class
             throw new ArgumentException("The TokenDto has som invalid values");
 
-        this.user = user;
+        // Generate new access token and refresh token
+        this.user = user; // Set the user for the token creation
+        user.RefreshToken = GenerateRefreshToken(); // Generate a new refresh token
+        user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(2); // Update the expiration
 
+        // Save the updated user to the database
+        var updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            // Handle update failure (throw or log errors)
+            throw new Exception("Failed to update user with new refresh token");
+        }
+
+        // Create and return the new tokens
         return await CreateTokenAsync(expireTime: false);
     }
 

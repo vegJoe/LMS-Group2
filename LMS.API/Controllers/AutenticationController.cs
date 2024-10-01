@@ -38,13 +38,10 @@ public class AutenticationController : ControllerBase
         var problemDetails = new ProblemDetails
         {
             Title = "User Registration Failed",
-            Detail = "One or more errors occurred during user registration.",
+            Detail = string.Join(", ", result.Errors.Select(e => e.Description)),
             Status = StatusCodes.Status400BadRequest,
             Instance = HttpContext.Request.Path
         };
-
-        // Add validation errors as an additional field
-        problemDetails.Extensions.Add("errors", result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
 
         return BadRequest(problemDetails);
 
@@ -72,6 +69,38 @@ public class AutenticationController : ControllerBase
 
         TokenDto tokenDto = await _serviceManager.AuthService.CreateTokenAsync(expireTime: true);
         return Ok(tokenDto);
+    }
+
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh(TokenDto tokenDto)
+    {
+        if (tokenDto == null)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Refresh token cannot be null",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext.Request.Path
+            });
+        }
+
+        try
+        {
+            var newTokenDto = await _serviceManager.AuthService.RefreshTokenAsync(tokenDto);
+            return Ok(newTokenDto);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Detail = ex.Message,
+                Status = StatusCodes.Status401Unauthorized,
+                Instance = HttpContext.Request.Path
+            });
+        }
     }
 }
 
