@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LMS.API", "LMS.API\LMS.API.csproj", "{43B16B72-581F-4F60-8B5F-26675EEE7C96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LMS.API", "LMS.API\LMS.API.csproj", "{43B16B72-581F-4F60-8B5F-26675EEE7C96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{DB3E50C0-162C-4EB3-A853-E7B79EBE5274}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller.Tests", "Controller.Tests\Controller.Tests.csproj", "{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{43B16B72-581F-4F60-8B5F-26675EEE7C96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43B16B72-581F-4F60-8B5F-26675EEE7C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43B16B72-581F-4F60-8B5F-26675EEE7C96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D9B2F406-4062-41E5-B2B5-0AB1E764CEA5} = {DB3E50C0-162C-4EB3-A853-E7B79EBE5274}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD2526CD-3948-4E04-A7C1-1B7046D33959}

@@ -238,28 +238,12 @@ namespace LMS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseDto>> CreateCourse(CreateUpdateCourseDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState)
-                {
-                    Title = "Validation error",
-                    Detail = "One or more validation errors occurred when trying to create the course.",
-                    Status = 400,
-                    Instance = HttpContext.Request.Path
-                });
-            }
-
             var course = _mapper.Map<Course>(dto);
             _context.Courses.Add(course);
-            await _context.SaveChangesAsync();
+            var test = await _context.SaveChangesAsync();
+            var courseDto = _mapper.Map<CourseDto>(course);
 
-            return CreatedAtAction(nameof(GetCourse), new { id = course.Id }, new ProblemDetails
-            {
-                Title = "Resource created",
-                Detail = $"Course with ID {course.Id} has been created successfully.",
-                Status = 201,
-                Instance = HttpContext.Request.Path
-            });
+            return CreatedAtAction(nameof(GetCourse), new { id = course.Id }, courseDto);
         }
 
         /// <summary>
