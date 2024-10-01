@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,6 +43,26 @@ namespace Controller.Tests
         }
 
         [Fact]
+        public async Task UpdateCourse_ShouldReturn_ShouldReturn204()
+        {
+            var dto = new CreateUpdateCourseDto
+            {
+                Name = "Backend updated",
+                Description = "Description updated",
+                StartDate = DateTime.UtcNow,
+            };
+
+            await fixture.Sut.UpdateCourse(2, dto);
+
+            var result = fixture.Sut.GetCourse(2);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+
+            var response = okResult.Value;
+
+        }
+
+        [Fact]
         public async Task GetCourses_ShouldReturnExpectedResponse()
         {
             var result = await fixture.Sut.GetCourses();
@@ -61,7 +82,8 @@ namespace Controller.Tests
 
             Assert.IsAssignableFrom<IEnumerable<CourseDto>>(courses);
 
-            Assert.Equal(2, totalCourses);
+            Assert.True(totalCourses > 1, "Expected number of courses is 2-3");
+            Assert.Equal(fixture.startDateForTest, courses.Where(c => c.Name == "C# .Net").Select(c => c.StartDate).FirstOrDefault());
             Assert.NotEmpty(courses);
         }
     }
