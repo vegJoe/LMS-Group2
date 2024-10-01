@@ -176,8 +176,6 @@ public class AuthService : IAuthService
 
         // Create and return the new tokens
         return await CreateTokenAsync(expireTime: false);
-
-        return await CreateTokenAsync(expireTime: false);
     }
 
     private ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
