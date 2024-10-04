@@ -282,7 +282,7 @@ namespace LMS.API.Controllers
         /// Retrieves a list of students enrolled in a specific course
         /// </summary>
         [HttpGet("{id}/students")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetStudentsForCourse(int id)
+        public async Task<ActionResult<IEnumerable<WithoutUsernameUserDto>>> GetStudentsForCourse(int id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -338,7 +338,7 @@ namespace LMS.API.Controllers
             }
 
             //Excluding the user making the requst
-            var userDtosResponse = _mapper.Map<IEnumerable<UserDto>>(course.Users
+            var userDtosResponse = _mapper.Map<IEnumerable<WithoutUsernameUserDto>>(course.Users
                 .Where(u => u.Id != userId));
             return Ok(userDtosResponse);
         }
