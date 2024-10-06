@@ -71,82 +71,121 @@ namespace LMS.API.Data
 
         private static List<Course> GenerateCourses(int count)
         {
-            var faker = new Faker<Course>()
-                .RuleFor(c => c.Name, f => f.Lorem.Word())
-                .RuleFor(c => c.Description, f => f.Lorem.Sentence())
-                .RuleFor(c => c.StartDate, f => f.Date.Past());
+            var courses = new List<Course>
+        {
+            new Course { Name = "Web Development", Description = "Learn how to build modern web applications", StartDate = DateTime.Now.AddMonths(-3) },
+            new Course { Name = "Backend Development", Description = "Master server-side programming and databases", StartDate = DateTime.Now.AddMonths(-4) },
+            new Course { Name = "Machine Learning", Description = "Dive into AI with practical machine learning techniques", StartDate = DateTime.Now.AddMonths(-2) },
+            new Course { Name = "Mobile App Development", Description = "Create powerful mobile applications", StartDate = DateTime.Now.AddMonths(-5) },
+            new Course { Name = "Cloud Computing", Description = "Learn cloud architecture and deployment", StartDate = DateTime.Now.AddMonths(-6) }
+        };
 
-            return faker.Generate(count);
+            return courses;
         }
 
         private static List<Module> GenerateModules(int count, List<Course> courses)
         {
             var modules = new List<Module>();
-            var faker = new Faker<Module>()
-                .RuleFor(m => m.Name, f => f.Lorem.Word())
-                .RuleFor(m => m.Description, f => f.Lorem.Sentence());
-
-            Random random = new Random();
+            var webDevModules = new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" };
+            var backendModules = new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" };
+            var machineLearningModules = new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" };
 
             foreach (var course in courses)
             {
-                DateTime currentStartDate = course.StartDate;
-
-                for (int i = 0; i < count; i++)
+                var courseModules = course.Name switch
                 {
-                    
-                    int moduleDurationInDays = random.Next(7, 28); // Each module lasts between 1 and 4 weeks
+                    "Web Development" => webDevModules,
+                    "Backend Development" => backendModules,
+                    "Machine Learning" => machineLearningModules,
+                    // Add other modules for additional courses
+                    _ => new List<string> { "General Module 1", "General Module 2" }
+                };
 
-                    var module = faker
-                        .RuleFor(m => m.CourseId, _ => course.Id)
-                        .RuleFor(m => m.StartDate, _ => currentStartDate)
-                        .RuleFor(m => m.EndDate, _ =>
-                        {
-                            var endDate = currentStartDate.AddDays(moduleDurationInDays);
-                            currentStartDate = endDate.AddDays(1); // The next module starts the day after the previous one
-                            return endDate;
-                        })
-                        .Generate();
-
-                    modules.Add(module);
+                foreach (var moduleName in courseModules)
+                {
+                    modules.Add(new Module
+                    {
+                        Name = moduleName,
+                        Description = $"Detailed course material on {moduleName}",
+                        CourseId = course.Id,
+                        StartDate = course.StartDate.AddDays(7),
+                        EndDate = course.StartDate.AddDays(14)
+                    });
                 }
             }
 
             return modules;
         }
 
+
         private static List<ActivityType> GenerateActivityTypes(int count)
         {
-            var faker = new Faker<ActivityType>()
-                .RuleFor(at => at.Name, f => f.Commerce.ProductName());
+            var activityTypes = new List<ActivityType>
+        {
+            new ActivityType { Name = "Assignment" },
+            new ActivityType { Name = "Quiz" },
+            new ActivityType { Name = "Lab" },
+            new ActivityType { Name = "Project" },
+            new ActivityType { Name = "Exam" }
+        };
 
-            return faker.Generate(count);
+            return activityTypes;
         }
 
         private static List<Activity> GenerateActivities(int count, List<Module> modules, List<ActivityType> activityTypes)
         {
-            var faker = new Faker<Activity>()
-                .RuleFor(a => a.Name, f => f.Lorem.Sentence(2))
-                .RuleFor(a => a.Description, f => f.Lorem.Paragraph())
-                .RuleFor(a => a.StartDate, f => f.Date.Past())
-                .RuleFor(a => a.EndDate, f => f.Date.Future())
-                .RuleFor(a => a.TypeId, f => f.PickRandom(activityTypes).Id)
-                .RuleFor(a => a.ModuleId, f => f.PickRandom(modules).Id);
+            var activities = new List<Activity>();
+            var faker = new Faker();
 
-            return faker.Generate(count);
+            foreach (var module in modules)
+            {
+                var activityDescriptions = new Dictionary<string, string>
+        {
+            { "Assignment", "Complete the assignment based on the module's learning materials." },
+            { "Quiz", "Test your knowledge with a short quiz on the module's topics." },
+            { "Lab", "Perform a hands-on exercise related to the module." },
+            { "Project", "Work on a project that implements concepts from the module." },
+            { "Exam", "Take the final exam covering the entire course content." }
+        };
+
+                for (int i = 0; i < count; i++)
+                {
+                    var activityType = faker.PickRandom(activityTypes);
+
+                    var activity = new Activity
+                    {
+                        Name = $"{activityType.Name} for {module.Name}",
+                        Description = activityDescriptions.ContainsKey(activityType.Name)
+                            ? activityDescriptions[activityType.Name]
+                            : "Complete the task according to the instructions.",
+                        StartDate = module.StartDate.AddDays(faker.Random.Int(1, 3)),
+                        EndDate = module.EndDate.AddDays(faker.Random.Int(4, 7)),
+                        TypeId = activityType.Id,
+                        ModuleId = module.Id
+                    };
+
+                    activities.Add(activity);
+                }
+            }
+
+            return activities;
         }
 
         private static async Task GenerateUsersAsync(UserManager<User> userManager, int count, List<Course> courses)
         {
             var existingUsers = await userManager.Users.ToListAsync();
             var userIds = existingUsers.Select(u => u.Id).ToHashSet();
+
+            var firstNames = new[] { "John", "Jane", "Michael", "Sarah", "David", "Emma", "Chris", "Sophia", "Daniel", "Olivia" };
+            var lastNames = new[] { "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez" };
+
             var faker = new Faker<User>()
-                .RuleFor(u => u.FirstName, f => f.Name.FirstName())
-                .RuleFor(u => u.LastName, f => f.Name.LastName())
-                .RuleFor(u => u.Email, f => f.Internet.Email())
-                .RuleFor(u => u.UserName, f => f.Internet.UserName())
-                .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())
-                .RuleFor(u => u.CourseId, f => f.PickRandom(courses).Id);
+                .RuleFor(u => u.FirstName, f => f.PickRandom(firstNames))  // Use predefined first names
+                .RuleFor(u => u.LastName, f => f.PickRandom(lastNames))    // Use predefined last names
+                .RuleFor(u => u.Email, (f, u) => $"{u.FirstName}.{u.LastName}@lms.com".ToLower())  // Custom email format
+                .RuleFor(u => u.UserName, (f, u) => $"{u.FirstName}.{u.LastName}".ToLower())        // Username based on name
+                .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())    // Generate realistic phone numbers
+                .RuleFor(u => u.CourseId, f => f.PickRandom(courses).Id);   // Random course assignment
 
             for (int i = 0; i < count; i++)
             {
@@ -161,7 +200,7 @@ namespace LMS.API.Data
                 if (result.Succeeded)
                 {
                     // Assign roles here
-                    var role = i % 2 == 0 ? "Teacher" : "Student";
+                    var role = i % 2 == 0 ? "Teacher" : "Student";  // Alternate between Teacher and Student roles
                     await userManager.AddToRoleAsync(user, role);
                 }
                 else
@@ -170,5 +209,6 @@ namespace LMS.API.Data
                 }
             }
         }
+
     }
 }
