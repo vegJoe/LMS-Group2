@@ -36,7 +36,7 @@ namespace LMS.API.Data
                     await db.SaveChangesAsync();
 
                     // Generate Activity Types
-                    var activityTypes = GenerateActivityTypes(5);
+                    var activityTypes = GenerateActivityTypes();
                     await db.AddRangeAsync(activityTypes);
                     await db.SaveChangesAsync();
 
@@ -86,31 +86,52 @@ namespace LMS.API.Data
         private static List<Module> GenerateModules(int count, List<Course> courses)
         {
             var modules = new List<Module>();
-            var webDevModules = new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" };
-            var backendModules = new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" };
-            var machineLearningModules = new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" };
+
+            // Define relevant modules for each course
+            var courseModulesDict = new Dictionary<string, List<string>>
+    {
+        { "Web Development", new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" } },
+        { "Backend Development", new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" } },
+        { "Machine Learning", new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" } },
+        { "Mobile App Development", new List<string> { "Introduction to Mobile Apps", "Android Development", "iOS Development", "Cross-Platform Development", "App Deployment" } },
+        { "Cloud Computing", new List<string> { "Cloud Fundamentals", "AWS Basics", "Azure Overview", "Google Cloud Platform", "Cloud Security" } }
+    };
+
+            DateTime today = DateTime.Parse("2024-10-06"); // Fixed current date
 
             foreach (var course in courses)
             {
-                var courseModules = course.Name switch
+                if (courseModulesDict.TryGetValue(course.Name, out var courseModules))
                 {
-                    "Web Development" => webDevModules,
-                    "Backend Development" => backendModules,
-                    "Machine Learning" => machineLearningModules,
-                    // Add other modules for additional courses
-                    _ => new List<string> { "General Module 1", "General Module 2" }
-                };
-
-                foreach (var moduleName in courseModules)
-                {
-                    modules.Add(new Module
+                    // Create 2 modules in the past
+                    for (int i = 0; i < 2; i++)
                     {
-                        Name = moduleName,
-                        Description = $"Detailed course material on {moduleName}",
-                        CourseId = course.Id,
-                        StartDate = course.StartDate.AddDays(7),
-                        EndDate = course.StartDate.AddDays(14)
-                    });
+                        var moduleName = courseModules[i]; // Get module name from the list
+
+                        modules.Add(new Module
+                        {
+                            Name = moduleName,
+                            Description = $"Detailed course material on {moduleName}",
+                            CourseId = course.Id,
+                            StartDate = today.AddDays(-(30 * (i + 1))), // Start 30 or 60 days ago
+                            EndDate = today.AddDays(-(30 * (i + 1)) + 7) // End 7 days after start
+                        });
+                    }
+
+                    // Create 3 active modules
+                    for (int i = 2; i < 5; i++) // Start from index 2 for active modules
+                    {
+                        var moduleName = courseModules[i]; // Get module name from the list
+
+                        modules.Add(new Module
+                        {
+                            Name = moduleName,
+                            Description = $"Detailed course material on {moduleName}",
+                            CourseId = course.Id,
+                            StartDate = today.AddDays(7 * (i - 1)), // Start 7 days from today for each module
+                            EndDate = today.AddDays(7 * (i - 1) + 7) // Each module lasts 1 week
+                        });
+                    }
                 }
             }
 
@@ -118,15 +139,15 @@ namespace LMS.API.Data
         }
 
 
-        private static List<ActivityType> GenerateActivityTypes(int count)
+        private static List<ActivityType> GenerateActivityTypes()
         {
             var activityTypes = new List<ActivityType>
         {
+            new ActivityType { Name = "E-Learning" },
             new ActivityType { Name = "Assignment" },
-            new ActivityType { Name = "Quiz" },
-            new ActivityType { Name = "Lab" },
-            new ActivityType { Name = "Project" },
-            new ActivityType { Name = "Exam" }
+            new ActivityType { Name = "Presentation" },
+            new ActivityType { Name = "Group Work" },
+            new ActivityType { Name = "Quiz" }
         };
 
             return activityTypes;
@@ -140,24 +161,22 @@ namespace LMS.API.Data
             foreach (var module in modules)
             {
                 var activityDescriptions = new Dictionary<string, string>
-        {
-            { "Assignment", "Complete the assignment based on the module's learning materials." },
-            { "Quiz", "Test your knowledge with a short quiz on the module's topics." },
-            { "Lab", "Perform a hands-on exercise related to the module." },
-            { "Project", "Work on a project that implements concepts from the module." },
-            { "Exam", "Take the final exam covering the entire course content." }
-        };
+            {
+                { "E-Learning", "Participate in the online learning module." },
+                { "Assignment", "Complete the assignment based on the module's learning materials." },
+                { "Presentation", "Prepare and deliver a presentation on the module's topic." },
+                { "Group Work", "Collaborate with peers on a project." },
+                { "Quiz", "Take a short quiz to test your understanding of the module." }
+            };
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < 5; i++) // Generates 5 activities per module
                 {
-                    var activityType = faker.PickRandom(activityTypes);
+                    var activityType = activityTypes[i % activityTypes.Count]; // Ensures activity types cycle through
 
                     var activity = new Activity
                     {
                         Name = $"{activityType.Name} for {module.Name}",
-                        Description = activityDescriptions.ContainsKey(activityType.Name)
-                            ? activityDescriptions[activityType.Name]
-                            : "Complete the task according to the instructions.",
+                        Description = activityDescriptions[activityType.Name], // Access the updated descriptions
                         StartDate = module.StartDate.AddDays(faker.Random.Int(1, 3)),
                         EndDate = module.EndDate.AddDays(faker.Random.Int(4, 7)),
                         TypeId = activityType.Id,
@@ -170,6 +189,9 @@ namespace LMS.API.Data
 
             return activities;
         }
+
+
+
 
         private static async Task GenerateUsersAsync(UserManager<User> userManager, int count, List<Course> courses)
         {
