@@ -89,13 +89,13 @@ namespace LMS.API.Data
 
             // Define relevant modules for each course
             var courseModulesDict = new Dictionary<string, List<string>>
-    {
-        { "Web Development", new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" } },
-        { "Backend Development", new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" } },
-        { "Machine Learning", new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" } },
-        { "Mobile App Development", new List<string> { "Introduction to Mobile Apps", "Android Development", "iOS Development", "Cross-Platform Development", "App Deployment" } },
-        { "Cloud Computing", new List<string> { "Cloud Fundamentals", "AWS Basics", "Azure Overview", "Google Cloud Platform", "Cloud Security" } }
-    };
+            {
+                { "Web Development", new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" } },
+                { "Backend Development", new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" } },
+                { "Machine Learning", new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" } },
+                { "Mobile App Development", new List<string> { "Introduction to Mobile Apps", "Android Development", "iOS Development", "Cross-Platform Development", "App Deployment" } },
+                { "Cloud Computing", new List<string> { "Cloud Fundamentals", "AWS Basics", "Azure Overview", "Google Cloud Platform", "Cloud Security" } }
+            };
 
             DateTime today = DateTime.Parse("2024-10-06"); // Fixed current date
 
@@ -158,27 +158,41 @@ namespace LMS.API.Data
             var activities = new List<Activity>();
             var faker = new Faker();
 
+            // Define descriptions for each activity type
+            var activityDescriptions = new Dictionary<string, string>
+    {
+        { "E-Learning", "Participate in the online learning module." },
+        { "Assignment", "Complete the assignment based on the module's learning materials." },
+        { "Presentation", "Prepare and deliver a presentation on the module's topic." },
+        { "Group Work", "Collaborate with peers on a project." },
+        { "Quiz", "Take a short quiz to test your understanding of the module." }
+    };
+
             foreach (var module in modules)
             {
-                var activityDescriptions = new Dictionary<string, string>
-            {
-                { "E-Learning", "Participate in the online learning module." },
-                { "Assignment", "Complete the assignment based on the module's learning materials." },
-                { "Presentation", "Prepare and deliver a presentation on the module's topic." },
-                { "Group Work", "Collaborate with peers on a project." },
-                { "Quiz", "Take a short quiz to test your understanding of the module." }
-            };
+                // Define a logical order for activities
+                var activityOrder = new List<string> { "E-Learning", "Assignment", "Group Work", "Quiz", "Presentation" };
 
-                for (int i = 0; i < 5; i++) // Generates 5 activities per module
+                for (int i = 0; i < activityOrder.Count; i++)
                 {
-                    var activityType = activityTypes[i % activityTypes.Count]; // Ensures activity types cycle through
+                    var activityType = activityTypes.FirstOrDefault(at => at.Name == activityOrder[i]);
+                    if (activityType == null) continue; // Ensure the activity type exists
+
+                    var startDate = module.StartDate.AddDays(i * 2); // Space out activities by 2 days
+                    var endDate = startDate.AddDays(1); // Each activity lasts for 1 day
+
+                    // Ensure activities stay within the module's date range
+                    if (endDate > module.EndDate)
+                    {
+                        endDate = module.EndDate;
+                    }
 
                     var activity = new Activity
                     {
-                        Name = $"{activityType.Name} for {module.Name}",
-                        Description = activityDescriptions[activityType.Name], // Access the updated descriptions
-                        StartDate = module.StartDate.AddDays(faker.Random.Int(1, 3)),
-                        EndDate = module.EndDate.AddDays(faker.Random.Int(4, 7)),
+                        Name = activityType.Name,
+                        Description = activityDescriptions[activityType.Name],
+                        StartDate = startDate,
+                        EndDate = endDate,
                         TypeId = activityType.Id,
                         ModuleId = module.Id
                     };
@@ -189,6 +203,8 @@ namespace LMS.API.Data
 
             return activities;
         }
+
+
 
 
 
