@@ -30,7 +30,7 @@ namespace LMS.API.Controllers
         /// <returns>Returns a list of courses as CourseDto, or 404 if no courses are found</returns>
         [Authorize(Roles = "Teacher")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses(int pageNumber = 1, int pageSize = 10, string? sortBy = null, string? filter = null)
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses(int pageNumber = 1, int pageSize = 20, string? sortBy = null, string? filter = null)
         {
             if (pageNumber < 1 || pageSize < 1)
             {
