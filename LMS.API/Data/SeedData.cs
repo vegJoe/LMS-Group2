@@ -76,8 +76,8 @@ namespace LMS.API.Data
             new Course { Name = "Web Development", Description = "Learn how to build modern web applications", StartDate = DateTime.Now.AddMonths(-3) },
             new Course { Name = "Backend Development", Description = "Master server-side programming and databases", StartDate = DateTime.Now.AddMonths(-4) },
             new Course { Name = "Machine Learning", Description = "Dive into AI with practical machine learning techniques", StartDate = DateTime.Now.AddMonths(-2) },
-            new Course { Name = "Mobile App Development", Description = "Create powerful mobile applications", StartDate = DateTime.Now.AddMonths(-5) },
-            new Course { Name = "Cloud Computing", Description = "Learn cloud architecture and deployment", StartDate = DateTime.Now.AddMonths(-6) }
+            //new Course { Name = "Mobile App Development", Description = "Create powerful mobile applications", StartDate = DateTime.Now.AddMonths(-5) },
+            //new Course { Name = "Cloud Computing", Description = "Learn cloud architecture and deployment", StartDate = DateTime.Now.AddMonths(-6) }
         };
 
             return courses;
@@ -93,8 +93,8 @@ namespace LMS.API.Data
                 { "Web Development", new List<string> { "HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "APIs and REST", "Web Security" } },
                 { "Backend Development", new List<string> { "Databases", "APIs and Microservices", "Authentication", "Server-Side Languages", "DevOps Fundamentals" } },
                 { "Machine Learning", new List<string> { "Data Preprocessing", "Supervised Learning", "Unsupervised Learning", "Neural Networks", "Model Deployment" } },
-                { "Mobile App Development", new List<string> { "Introduction to Mobile Apps", "Android Development", "iOS Development", "Cross-Platform Development", "App Deployment" } },
-                { "Cloud Computing", new List<string> { "Cloud Fundamentals", "AWS Basics", "Azure Overview", "Google Cloud Platform", "Cloud Security" } }
+                //{ "Mobile App Development", new List<string> { "Introduction to Mobile Apps", "Android Development", "iOS Development", "Cross-Platform Development", "App Deployment" } },
+                //{ "Cloud Computing", new List<string> { "Cloud Fundamentals", "AWS Basics", "Azure Overview", "Google Cloud Platform", "Cloud Security" } }
             };
 
             DateTime today = DateTime.Parse("2024-10-06"); // Fixed current date
@@ -214,27 +214,51 @@ namespace LMS.API.Data
             var existingUsers = await userManager.Users.ToListAsync();
             var userIds = existingUsers.Select(u => u.Id).ToHashSet();
 
-            var firstNames = new[] { "John", "Jane", "Michael", "Sarah", "David", "Emma", "Chris", "Sophia", "Daniel", "Olivia" };
-            var lastNames = new[] { "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez" };
+            // Extended list of first names and last names
+            var firstNames = new[]
+            {
+        "John", "Jane", "Michael", "Sarah", "David",
+        "Emma", "Chris", "Sophia", "Daniel", "Olivia",
+        "Alice", "Bob", "Charlie", "Diana", "Ethan"
+    };
 
-            var faker = new Faker<User>()
-                .RuleFor(u => u.FirstName, f => f.PickRandom(firstNames))  // Use predefined first names
-                .RuleFor(u => u.LastName, f => f.PickRandom(lastNames))    // Use predefined last names
-                .RuleFor(u => u.Email, (f, u) => $"{u.FirstName}.{u.LastName}@lms.com".ToLower())  // Custom email format
-                .RuleFor(u => u.UserName, (f, u) => $"{u.FirstName}.{u.LastName}".ToLower())        // Username based on name
-                .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber())    // Generate realistic phone numbers
-                .RuleFor(u => u.CourseId, f => f.PickRandom(courses).Id);   // Random course assignment
+            var lastNames = new[]
+            {
+        "Smith", "Johnson", "Williams", "Brown", "Jones",
+        "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+        "Wilson", "Anderson", "Taylor", "Thomas", "Moore"
+    };
+
+            // Check if we have enough unique first names
+            if (count > firstNames.Length)
+            {
+                throw new Exception("Not enough unique first names available for the specified count.");
+            }
+
+            // Shuffle the first names for uniqueness
+            firstNames = ShuffleList(firstNames.ToList()).ToArray();
 
             for (int i = 0; i < count; i++)
             {
-                User user;
-                do
-                {
-                    user = faker.Generate();
-                    user.Id = Guid.NewGuid().ToString(); // Ensure a unique ID
-                } while (userIds.Contains(user.Id)); // Check for uniqueness
+                // Select a unique first name
+                var firstName = firstNames[i];
+                // Randomly select a last name
+                var lastName = lastNames[new Random().Next(lastNames.Length)];
 
-                var result = await userManager.CreateAsync(user, "Password123!"); // Use a secure password
+                // Create a new user
+                var user = new User
+                {
+                    Id = Guid.NewGuid().ToString(),  // Ensure a unique ID
+                    FirstName = firstName,           // Use a unique first name
+                    LastName = lastName,             // Random last name
+                    UserName = $"{firstName.ToLower()}.{lastName.ToLower()}",   // Username based on firstname.lastname
+                    Email = $"{firstName.ToLower()}.{lastName.ToLower()}@lms.com",  // Custom email format
+                    PhoneNumber = GeneratePhoneNumber(),  // Generate realistic phone number
+                    CourseId = courses[new Random().Next(courses.Count)].Id  // Random course assignment
+                };
+
+                // Create the user and assign a role
+                var result = await userManager.CreateAsync(user, "Password123!");  // Use a secure password
                 if (result.Succeeded)
                 {
                     // Assign roles here
@@ -246,6 +270,31 @@ namespace LMS.API.Data
                     Console.WriteLine($"Error creating user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
             }
+        }
+
+        // Method to shuffle a list using Fisher-Yates algorithm (built-in C# approach)
+        private static List<T> ShuffleList<T>(List<T> list)
+        {
+            Random rng = new Random();
+            int n = list.Count;
+
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+
+            return list;
+        }
+
+        // Method to generate a realistic phone number (example logic)
+        private static string GeneratePhoneNumber()
+        {
+            Random rand = new Random();
+            return $"07{rand.Next(100000000, 999999999)}";  // Generates a random phone number
         }
 
     }
